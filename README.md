@@ -3,7 +3,7 @@
 Plugin that provides some additional options and tweaks for WooCommerce Wordpress plugin which has been originally developed by WooThemes.
 
 Update 1.1.1:
-* Improved capabilites editing
+* Improved capabilities management of "Shop manager" role
 * Added accordion for subcategories enhancement
 * Settings page fixes and improvements
 
@@ -48,8 +48,6 @@ Features:
 	* Orders	
 	* Coupons	
 	* Reports	
-
-	"Shop manager" is prohibited to edit wordpress pages.
 
 * Disable logo menu in admin dashboard.
 

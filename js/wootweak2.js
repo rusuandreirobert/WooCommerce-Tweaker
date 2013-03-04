@@ -1,4 +1,15 @@
 jQuery(document).ready(function($) {
+
+	// Product category widget enhancement
+	if(typeof product_category_widget_enhancement != 'undefined' && product_category_widget_enhancement == true)
+	{
+		var lists = $('.product-categories .children');
+		lists.hide();
+		lists.prev().bind('click', function(evt){
+			evt.preventDefault();
+			$(this).next('.children').slideToggle();
+		});
+	}
     
     $('.variations select').live('change', function(){
 	

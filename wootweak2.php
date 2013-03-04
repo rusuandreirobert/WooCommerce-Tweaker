@@ -48,6 +48,8 @@ class WooTweak2 {
 
 	add_action('admin_menu', array($this, 'add_pages'));
 
+	add_action('wp_head', array($this, 'wt2_frontend_enhancement'));
+
 	add_filter( 'woocommerce_checkout_fields' , array($this, 'wt2_override_checkout_fields'));
 	
 	add_action( 'woocommerce_before_checkout_form', array($this, 'wt2_checkout_form_width_function'));
@@ -156,7 +158,8 @@ class WooTweak2 {
     ?>
     
     <div class="wrap">
-	<?php //screen_icon();
+	<?php 
+	// screen_icon();
 	$o = get_option('WooTweak2_options');
 	//echo '<pre>';
 	//print_r($o);
@@ -164,23 +167,40 @@ class WooTweak2 {
 	?>
 	<script>
 	    jQuery(document).ready(function($) {
-		var count = 0;
-		var ul = '<ul>';
-		$('h3').each(function(){
-		    ul = ul + '<li><a href="#tabs-'+count+'">'+$(this).text()+'</a></li>';
-		    $(this).next('table').andSelf().wrapAll('<div class="tab" id="tabs-'+count+'"/>');
-		    count++;
-		});
-		ul = ul + '</ul><div style="clear:both;">';
-		$('.tab').wrapAll('<div id="tabs" />');
-		$('#tabs').prepend(ul).tabs();
+			$('#tabs').tabs();
 	    });
 	</script>
 	<div class="icon32" style="background-image: url(<?php echo plugins_url(); ?>/woocommerce/assets/images/icons/woocommerce-icons.png)!important; background-position: -359px -6px;"><br></div>
 	<h2><?php echo __('Settings', 'woocommerce'); ?></h2>
 	<form method="post" action="options.php" enctype="multipart/form-data">
 	<?php settings_fields('WooTweak2_plugin_options_group'); ?>
-	<?php do_settings_sections(__FILE__); ?>
+	<?php //do_settings_sections(__FILE__); ?>
+	
+	<div id="tabs">
+		<ul>
+			<li><a href="#tabs-1"><?php echo __('General Options', 'woocommerce'); ?></a></li>
+			<li><a href="#tabs-2"><?php echo __('Capabilities', 'woocommerce'); ?></a></li>
+			<li><a href="#tabs-3"><?php echo __('Checkout Page', 'woocommerce').' - '.__('Billing', 'woocommerce'); ?></a></li>
+			<li><a href="#tabs-4"><?php echo __('Checkout Page', 'woocommerce').' - '.__('Shipping', 'woocommerce'); ?></a></li>
+			<li><a href="#tabs-5"><?php echo __('Checkout Page', 'woocommerce').' - '.__('Customer Notes', 'woocommerce'); ?></a></li>
+		</ul>
+		<div id="tabs-1">
+			<?php do_settings_sections( 'main_section' ); ?>
+		</div>
+		<div id="tabs-2">
+			<?php do_settings_sections( 'capabilities_section' ); ?>
+		</div>
+		<div id="tabs-3">
+			<?php do_settings_sections( 'order_section' ); ?>
+		</div>
+		<div id="tabs-4">
+			<?php do_settings_sections( 'shipping_section' ); ?>
+		</div>
+		<div id="tabs-5">
+			<?php do_settings_sections( 'order_comments_section' ); ?>
+		</div>
+	</div>
+
 	
 	<p class="submit">
 	    <input type="submit" name="submit" value="<?php echo __('Save changes', 'woocommerce'); ?>" class="button-primary"  />
@@ -193,27 +213,38 @@ class WooTweak2 {
     function reg_settings_and_fields()
     {
     register_setting('WooTweak2_plugin_options_group', 'WooTweak2_options', array($this, 'WooTweak2_validate_settings')); //3rd param optional callback func
-    add_settings_section('WooTweak2_main_section', __('General Options', 'woocommerce'), array($this, 'WooTweak2_main_section_cb'), __FILE__); //id, title, callback, page
-    
-    add_settings_section('WooTweak2_order_section', __('Checkout Page', 'woocommerce').' - '.__('Billing', 'woocommerce'), array($this, 'WooTweak2_order_section_cb'), __FILE__); //id, title, callback, page
-    add_settings_section('WooTweak2_shipping_section', __('Checkout Page', 'woocommerce').' - '.__('Shipping', 'woocommerce'), array($this, 'WooTweak2_shipping_section_cb'), __FILE__); //id, title, callback, page
-    add_settings_section('WooTweak2_order_comments_section', __('Checkout Page', 'woocommerce').' - '.__('Customer Notes', 'woocommerce'), array($this, 'WooTweak2_order_comments_section_cb'), __FILE__); //id, title, callback, page
+
+    add_settings_section('WooTweak2_main_section', __('General Options', 'woocommerce'), array($this, 'WooTweak2_main_section_cb'), 'main_section'); //id, title, callback, page
+    add_settings_section('WooTweak2_capabilities_section', __('Capabilities', 'woocommerce'), array($this, 'WooTweak2_capabilities_section_cb'), 'capabilities_section'); //id, title, callback, page
+    add_settings_section('WooTweak2_order_section', __('Checkout Page', 'woocommerce').' - '.__('Billing', 'woocommerce'), array($this, 'WooTweak2_order_section_cb'), 'order_section'); //id, title, callback, page
+    add_settings_section('WooTweak2_shipping_section', __('Checkout Page', 'woocommerce').' - '.__('Shipping', 'woocommerce'), array($this, 'WooTweak2_shipping_section_cb'), 'shipping_section'); //id, title, callback, page
+    add_settings_section('WooTweak2_order_comments_section', __('Checkout Page', 'woocommerce').' - '.__('Customer Notes', 'woocommerce'), array($this, 'WooTweak2_order_comments_section_cb'), 'order_comments_section'); //id, title, callback, page
     
     // ADD ALL add_settings_field FUNCTIONS HERE
-    add_settings_field('wt2_disable_tabs_on_product_page', __('Disable tabs on product page', 'WooTweak2'), array($this,'wt2_disable_tabs_on_product_page_generate_field'), __FILE__, 'WooTweak2_main_section'); // id, title, cb func, page , section
-    add_settings_field('wt2_disable_tabs_on_product_page_float_description', __('Float description to right', 'WooTweak2'), array($this,'wt2_disable_tabs_on_product_page_float_description_generate_field'), __FILE__, 'WooTweak2_main_section'); // id, title, cb func, page , section
-    add_settings_field('wt2_disable_product_attributes_show', __('Disable attributes on product page', 'WooTweak2'), array($this,'wt2_disable_product_attributes_show_generate_field'), __FILE__, 'WooTweak2_main_section'); // id, title, cb func, page , section
-    add_settings_field('wt2_checkout_form_width', __('One column checkout form', 'WooTweak2'), array($this,'wt2_checkout_form_width_generate_field'), __FILE__, 'WooTweak2_main_section'); // id, title, cb func, page , section
-    add_settings_field('wt2_variations_descriptions', __('Add description field for variantions', 'WooTweak2'), array($this,'wt2_variations_descriptions_generate_field'), __FILE__, 'WooTweak2_main_section'); // id, title, cb func, page , section
-    add_settings_field('wt2_variations_tab_on_product_page', __('Add variations tab on product page', 'WooTweak2'), array($this,'wt2_variations_tab_on_product_page_generate_field'), __FILE__, 'WooTweak2_main_section'); // id, title, cb func, page , section
-    add_settings_field('wt2_use_wp_pagenavi', __('Use WP PageNavi plugin for pagination (if installed and active)', 'WooTweak2'), array($this,'wt2_use_wp_pagenavi_generate_field'), __FILE__, 'WooTweak2_main_section'); // id, title, cb func, page , section
-    add_settings_field('wt2_show_sort_before_products', __('Show sorting field before products', 'WooTweak2'), array($this,'wt2_show_sort_before_products_generate_field'), __FILE__, 'WooTweak2_main_section'); // id, title, cb func, page , section
-    add_settings_field('wt2_custom_addtocart_button_text', __('Custom text for "Add to Cart" button (Single product)', 'WooTweak2'), array($this,'wt2_custom_addtocart_button_text_generate_field'), __FILE__, 'WooTweak2_main_section'); // id, title, cb func, page , section
-	add_settings_field('wt2_manage_pages', __('Remove edit pages capability from "Shop Manager" role', 'WooTweak2'), array($this,'wt2_manage_pages_generate_field'), __FILE__, 'WooTweak2_main_section'); // id, title, cb func, page , section
-	add_settings_field('wt2_disable_dashbord_logo_menu', __('Disable logo menu in admin dashboard'), array($this,'wt2_disable_dashbord_logo_menu_generate_field'), __FILE__, 'WooTweak2_main_section'); // id, title, cb func, page , section
-	add_settings_field('wt2_disable_checkout_fields_customization', __('Disable checkout fields customization','WooTweak2'), array($this,'wt2_disable_checkout_fields_customization_generate_field'), __FILE__, 'WooTweak2_main_section'); // id, title, cb func, page , section
-	add_settings_field('wt2_remove_related_products_on_product_page', __('Remove related products on product page'), array($this,'wt2_remove_related_products_on_product_page_generate_field'), __FILE__, 'WooTweak2_main_section'); // id, title, cb func, page , section
-	add_settings_field('wt2_disable_cart_functions', __('Disable cart funcionality to simulate catalog'), array($this,'wt2_disable_cart_functions_generate_field'), __FILE__, 'WooTweak2_main_section'); // id, title, cb func, page , section
+    add_settings_field('wt2_disable_tabs_on_product_page', __('Disable tabs on product page', 'WooTweak2'), array($this,'wt2_disable_tabs_on_product_page_generate_field'), 'main_section', 'WooTweak2_main_section'); // id, title, cb func, page , section
+    add_settings_field('wt2_disable_tabs_on_product_page_float_description', __('Float description to right', 'WooTweak2'), array($this,'wt2_disable_tabs_on_product_page_float_description_generate_field'), 'main_section', 'WooTweak2_main_section'); // id, title, cb func, page , section
+    add_settings_field('wt2_disable_product_attributes_show', __('Disable attributes on product page', 'WooTweak2'), array($this,'wt2_disable_product_attributes_show_generate_field'), 'main_section', 'WooTweak2_main_section'); // id, title, cb func, page , section
+    add_settings_field('wt2_checkout_form_width', __('One column checkout form', 'WooTweak2'), array($this,'wt2_checkout_form_width_generate_field'), 'main_section', 'WooTweak2_main_section'); // id, title, cb func, page , section
+    add_settings_field('wt2_variations_descriptions', __('Add description field for variantions', 'WooTweak2'), array($this,'wt2_variations_descriptions_generate_field'), 'main_section', 'WooTweak2_main_section'); // id, title, cb func, page , section
+    add_settings_field('wt2_variations_tab_on_product_page', __('Add variations tab on product page', 'WooTweak2'), array($this,'wt2_variations_tab_on_product_page_generate_field'), 'main_section', 'WooTweak2_main_section'); // id, title, cb func, page , section
+    add_settings_field('wt2_use_wp_pagenavi', __('Use WP PageNavi plugin for pagination (if installed and active)', 'WooTweak2'), array($this,'wt2_use_wp_pagenavi_generate_field'), 'main_section', 'WooTweak2_main_section'); // id, title, cb func, page , section
+    add_settings_field('wt2_show_sort_before_products', __('Show sorting field before products', 'WooTweak2'), array($this,'wt2_show_sort_before_products_generate_field'), 'main_section', 'WooTweak2_main_section'); // id, title, cb func, page , section
+    add_settings_field('wt2_custom_addtocart_button_text', __('Custom text for "Add to Cart" button (Single product)', 'WooTweak2'), array($this,'wt2_custom_addtocart_button_text_generate_field'), 'main_section', 'WooTweak2_main_section'); // id, title, cb func, page , section
+	
+	add_settings_field('wt2_disable_dashbord_logo_menu', __('Disable logo menu in admin dashboard'), array($this,'wt2_disable_dashbord_logo_menu_generate_field'), 'main_section', 'WooTweak2_main_section'); // id, title, cb func, page , section
+	add_settings_field('wt2_disable_checkout_fields_customization', __('Disable checkout fields customization','WooTweak2'), array($this,'wt2_disable_checkout_fields_customization_generate_field'), 'main_section', 'WooTweak2_main_section'); // id, title, cb func, page , section
+	add_settings_field('wt2_remove_related_products_on_product_page', __('Remove related products on product page'), array($this,'wt2_remove_related_products_on_product_page_generate_field'), 'main_section', 'WooTweak2_main_section'); // id, title, cb func, page , section
+	add_settings_field('wt2_disable_cart_functions', __('Disable cart funcionality to simulate catalog'), array($this,'wt2_disable_cart_functions_generate_field'), 'main_section', 'WooTweak2_main_section'); // id, title, cb func, page , section
+    add_settings_field('wt2_enhance_product_category_widget', __('Enhance product category widget with accordion for subcategories'), array($this,'wt2_enhance_product_category_widget_generate_field'), 'main_section', 'WooTweak2_main_section'); // id, title, cb func, page , section
+
+	add_settings_field('wt2_manage_pages', __('Edit pages', 'WooTweak2'), array($this,'wt2_manage_pages_generate_field'), 'capabilities_section', 'WooTweak2_capabilities_section'); // id, title, cb func, page , section
+	add_settings_field('wt2_manage_posts', __('Edit posts'), array($this,'wt2_manage_posts_generate_field'), 'capabilities_section', 'WooTweak2_capabilities_section'); // id, title, cb func, page , section
+	add_settings_field('wt2_manage_tools', __('Tools'), array($this,'wt2_manage_tools_generate_field'), 'capabilities_section', 'WooTweak2_capabilities_section'); // id, title, cb func, page , section
+	add_settings_field('wt2_manage_orders', __('Orders', 'WooTweak2'), array($this,'wt2_manage_orders_generate_field'), 'capabilities_section', 'WooTweak2_capabilities_section'); // id, title, cb func, page , section
+	add_settings_field('wt2_manage_coupons', __('Coupons', 'WooTweak2'), array($this,'wt2_manage_coupons_generate_field'), 'capabilities_section', 'WooTweak2_capabilities_section'); // id, title, cb func, page , section
+	add_settings_field('wt2_manage_reports', __('Reports', 'WooTweak2'), array($this,'wt2_manage_reports_generate_field'), 'capabilities_section', 'WooTweak2_capabilities_section'); // id, title, cb func, page , section
+	
+	
 
 
     foreach($this->billing_array as $item)
@@ -221,18 +252,18 @@ class WooTweak2 {
 	    $name = str_replace('billing_','', $item);
 	    $name = str_replace('_',' ',$name);
 	    $name = ucwords($name);
-	    add_settings_field('wt2_disabled_'.$item, __($name, 'woocommerce'), array($this,'wt2_billing_disabled_fields'), __FILE__, 'WooTweak2_order_section',$item); // id, title, cb func, page , section
+	    add_settings_field('wt2_disabled_'.$item, __($name, 'woocommerce'), array($this,'wt2_billing_disabled_fields'), 'order_section', 'WooTweak2_order_section',$item); // id, title, cb func, page , section
 	}
     foreach($this->shipping_array as $item)
 	{
 	    $name = str_replace('shipping_','', $item);
 	    $name = str_replace('_',' ',$name);
 	    $name = ucwords($name);
-	    add_settings_field('wt2_disabled_'.$item, __($name, 'woocommerce'), array($this,'wt2_billing_disabled_fields'), __FILE__, 'WooTweak2_shipping_section',$item); // id, title, cb func, page , section
+	    add_settings_field('wt2_disabled_'.$item, __($name, 'woocommerce'), array($this,'wt2_billing_disabled_fields'), 'shipping_section', 'WooTweak2_shipping_section',$item); // id, title, cb func, page , section
 	}
     foreach($this->order_array as $item)
 	{
-	    	    add_settings_field('wt2_disabled_'.$item, __('Order Notes', 'woocommerce'), array($this,'wt2_billing_disabled_fields'), __FILE__, 'WooTweak2_order_comments_section',$item); // id, title, cb func, page , section
+	    	    add_settings_field('wt2_disabled_'.$item, __('Order Notes', 'woocommerce'), array($this,'wt2_billing_disabled_fields'), 'order_comments_section', 'WooTweak2_order_comments_section',$item); // id, title, cb func, page , section
 	}
     }
      
@@ -244,6 +275,10 @@ class WooTweak2 {
 	}
     function WooTweak2_order_comments_section_cb(){// Optional
 	}
+    function WooTweak2_capabilities_section_cb(){// Optional
+    	echo '<p>'.__('Remove following capabilities from "Shop Manager" role:').'</p>';
+	}
+	
     function WooTweak2_validate_settings($plugin_options)
     {
 	return $plugin_options;
@@ -321,11 +356,44 @@ class WooTweak2 {
 	echo '<input name="WooTweak2_options[wt2_custom_addtocart_button_text]" type="text" value="'.$this->options['wt2_custom_addtocart_button_text'].'">';
 	}
 
+	// Capabilities
+
 	function wt2_manage_pages_generate_field()
 	    {
 		$checked = ( 1 == $this->options['wt2_manage_pages'] ) ? 'checked="checked"' : '' ;
 		echo '<input name="WooTweak2_options[wt2_manage_pages]" type="checkbox" value="1" '.$checked.'>';
 	    }
+
+	function wt2_manage_tools_generate_field()
+	{
+		$checked = ( 1 == $this->options['wt2_manage_tools'] ) ? 'checked="checked"' : '' ;
+		echo '<input name="WooTweak2_options[wt2_manage_tools]" type="checkbox" value="1" '.$checked.'>';
+	}
+
+	function wt2_manage_posts_generate_field()
+	{
+		$checked = ( 1 == $this->options['wt2_manage_posts'] ) ? 'checked="checked"' : '' ;
+		echo '<input name="WooTweak2_options[wt2_manage_posts]" type="checkbox" value="1" '.$checked.'>';
+	}
+	
+	function wt2_manage_orders_generate_field()
+	{
+		$checked = ( 1 == $this->options['wt2_manage_orders'] ) ? 'checked="checked"' : '' ;
+		echo '<input name="WooTweak2_options[wt2_manage_orders]" type="checkbox" value="1" '.$checked.'>';
+	}
+	
+	function wt2_manage_coupons_generate_field()
+	{
+		$checked = ( 1 == $this->options['wt2_manage_coupons'] ) ? 'checked="checked"' : '' ;
+		echo '<input name="WooTweak2_options[wt2_manage_coupons]" type="checkbox" value="1" '.$checked.'>';
+	}
+	
+	function wt2_manage_reports_generate_field()
+	{
+		$checked = ( 1 == $this->options['wt2_manage_reports'] ) ? 'checked="checked"' : '' ;
+		echo '<input name="WooTweak2_options[wt2_manage_reports]" type="checkbox" value="1" '.$checked.'>';
+	}
+	// *****
 	
 	function wt2_disable_dashbord_logo_menu_generate_field()
 	     {
@@ -351,6 +419,11 @@ class WooTweak2 {
 	  	echo '<input name="WooTweak2_options[wt2_disable_cart_functions]" type="checkbox" value="1" '.$checked.'>';
 	  } 
     
+    function wt2_enhance_product_category_widget_generate_field()
+    {
+    	$checked = ( 1 == $this->options['wt2_enhance_product_category_widget'] ) ? 'checked="checked"' : '' ;
+    	echo '<input name="WooTweak2_options[wt2_enhance_product_category_widget]" type="checkbox" value="1" '.$checked.'>';
+    }
     // Disable (hide) tabs on product page *************************************************************************************************************************
     
     function wt2_remove_tabs_in_product_details()
@@ -578,7 +651,81 @@ class WooTweak2 {
 		$wp_roles->add_cap('shop_manager', 'delete_published_pages');
 		$wp_roles->add_cap('shop_manager', 'delete_others_pages');	
 	}
-	
+
+	if($o['wt2_manage_posts']) 
+	{
+		$wp_roles->remove_cap('shop_manager', 'edit_posts');
+		$wp_roles->remove_cap('shop_manager', 'edit_others_posts');
+		$wp_roles->remove_cap('shop_manager', 'edit_published_posts');
+		$wp_roles->remove_cap('shop_manager', 'publish_posts');
+		$wp_roles->remove_cap('shop_manager', 'delete_posts');
+		$wp_roles->remove_cap('shop_manager', 'delete_others_posts');
+		$wp_roles->remove_cap('shop_manager', 'delete_published_posts');
+		$wp_roles->remove_cap('shop_manager', 'delete_private_posts');
+		$wp_roles->remove_cap('shop_manager', 'edit_private_posts');
+		$wp_roles->remove_cap('shop_manager', 'read_private_posts');
+		$wp_roles->remove_cap('shop_manager', 'manage_categories');
+
+		
+	}
+	else
+	{
+		$wp_roles->add_cap('shop_manager', 'edit_posts');
+		$wp_roles->add_cap('shop_manager', 'edit_others_posts');
+		$wp_roles->add_cap('shop_manager', 'edit_published_posts');
+		$wp_roles->add_cap('shop_manager', 'publish_posts');
+		$wp_roles->add_cap('shop_manager', 'delete_posts');
+		$wp_roles->add_cap('shop_manager', 'delete_others_posts');
+		$wp_roles->add_cap('shop_manager', 'delete_published_posts');
+		$wp_roles->add_cap('shop_manager', 'delete_private_posts');
+		$wp_roles->add_cap('shop_manager', 'edit_private_posts');
+		$wp_roles->add_cap('shop_manager', 'read_private_posts');
+		$wp_roles->add_cap('shop_manager', 'manage_categories');
+
+	}
+
+	if($o['wt2_manage_tools']) 
+	{
+		$wp_roles->remove_cap('shop_manager', 'import');
+		$wp_roles->remove_cap('shop_manager', 'export');
+	}
+	else
+	{
+		$wp_roles->add_cap('shop_manager', 'import');	
+		$wp_roles->add_cap('shop_manager', 'export');	
+	}
+
+	if($o['wt2_manage_orders']) 
+	{
+		$wp_roles->remove_cap('shop_manager', 'manage_woocommerce_orders');
+	}
+	else
+	{
+		$wp_roles->add_cap('shop_manager', 'manage_woocommerce_orders');	
+	}
+
+	if($o['wt2_manage_coupons']) 
+	{
+		$wp_roles->remove_cap('shop_manager', 'manage_woocommerce_coupons');
+	}
+	else
+	{
+		$wp_roles->add_cap('shop_manager', 'manage_woocommerce_coupons');	
+	}
+
+	if($o['wt2_manage_reports']) 
+	{
+		$wp_roles->remove_cap('shop_manager', 'view_woocommerce_reports');
+	}
+	else
+	{
+		$wp_roles->add_cap('shop_manager', 'view_woocommerce_reports');	
+	}
+// 	manage_woocommerce
+// manage_woocommerce_orders
+// manage_woocommerce_coupons
+// manage_woocommerce_products
+// view_woocommerce_reports
 
 	$wp_roles->remove_cap('shop_manager', 'manage_links');
 	$wp_roles->remove_cap('shop_manager', 'woocommerce_debug');
@@ -644,6 +791,20 @@ class WooTweak2 {
 	function wt2_remove_woo_commerce_generator_tag()
 	{
 	    remove_action('wp_head',array($GLOBALS['woocommerce'], 'generator'));
+	}
+
+	// Widget enhancement stuff *****************************************************************************************************************
+	function wt2_frontend_enhancement() //wt2_product_category_widget_enhancement
+	{
+		$o = get_option('WooTweak2_options');
+		if ($o['wt2_enhance_product_category_widget'])
+		{
+			?>
+			<script>
+			var product_category_widget_enhancement = true; 
+			</script>
+			<?php
+		}	
 	}
 
     // Variations stuff *************************************************************************************************************************
@@ -815,7 +976,7 @@ class WooTweak2 {
 					    
 					    <strong>#<?php echo $variation->ID; ?> &mdash; </strong>
 					    <?php
-						    $variation_selected_value = get_post_meta( $variation->ID, 'attribute_' . sanitize_title($attribute['name']), true );
+						    $variation_selected_value = get_post_meta( $variation->ID, 'attribute_' /*. sanitize_title($attribute['name'])*/, true );
 						    echo $variation_selected_value;
 					    ?>
 					</h3>
@@ -859,6 +1020,7 @@ class WooTweak2 {
 	    echo '<li><a href="#tab-variations">'.__('Variation', 'woocommerce').' ('.__('Description', 'woocommerce').')</a></li>';
 	}
     }
+
     function wt2_variations_panel()
     {
 	$o = get_option('WooTweak2_options');
@@ -923,7 +1085,7 @@ class WooTweak2_cart_widget extends WP_Widget {
     function __construct()
     {
     $params = array(
-	'name' => 'WooTweak2 '.__('Cart', 'woocommerce'),
+	'name' => __('WooCommerce small Cart'),
 	'description' => __('Small cart. Amount and total only', 'WooTweak2') // plugin description that is showed in Widget section of admin panel
     );
     

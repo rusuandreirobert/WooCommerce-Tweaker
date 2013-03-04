@@ -4,7 +4,7 @@ Plugin Name: WooTweak 2
 Plugin URI: 
 Description: WooCommerce Tweaker 2
 Author: Dark Delphin
-Version: 1.1
+Version: 1.1.1
 Author URI: 
 */
 

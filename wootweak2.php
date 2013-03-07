@@ -57,21 +57,16 @@ class WooTweak2 {
 	add_action('woocommerce_after_single_product_summary', array($this, 'wt2_remove_tabs_in_product_details'), 1);
 	add_action('woocommerce_after_single_product_summary', array($this, 'wt2_remove_panels_in_product_details'), 2);
 	
-	add_action('woocommerce_before_add_to_cart_form', array($this, 'wt2_variations_enhancement'));
-	
-	add_action('woocommerce_after_add_to_cart_button', array($this, 'wt2_variations_enhancement_meta_table'));
-	
 	// In Admin panel
 	add_action('woocommerce_product_write_panel_tabs', array($this, 'wt2_variations_description_tab'));
 	add_action('woocommerce_product_write_panels', array($this, 'wt2_variations_description_tab_fields'));
 	add_action('woocommerce_process_product_meta_variable', array($this, 'wt2_variations_description_tab_fields_process'));
 
-	add_action('woocommerce_product_tabs', array($this, 'wt2_variations_tab'));
-	add_action('woocommerce_product_tab_panels', array($this, 'wt2_variations_panel'));
+	add_filter('woocommerce_product_tabs', array($this, 'wt2_variations_tab'));
 	
 	add_action('woocommerce_init', array($this, 'wt2_tweak_shop_manager_role'));
 	add_action('woocommerce_init', array($this, 'wt2_use_wp_pagenavi_func'));
-	add_action('woocommerce_init', array($this, 'wt2_remove_related_products_on_product_page'));
+	// add_action('woocommerce_init', array($this, 'wt2_remove_related_products_on_product_page'));
 	
 	add_action('woocommerce_init', array($this, 'wt2_show_sorting_feild_before_products'));
 	
@@ -161,9 +156,6 @@ class WooTweak2 {
 	<?php 
 	// screen_icon();
 	$o = get_option('WooTweak2_options');
-	//echo '<pre>';
-	//print_r($o);
-	//echo '</pre>';
 	?>
 	<script>
 	    jQuery(document).ready(function($) {
@@ -721,11 +713,6 @@ class WooTweak2 {
 	{
 		$wp_roles->add_cap('shop_manager', 'view_woocommerce_reports');	
 	}
-// 	manage_woocommerce
-// manage_woocommerce_orders
-// manage_woocommerce_coupons
-// manage_woocommerce_products
-// view_woocommerce_reports
 
 	$wp_roles->remove_cap('shop_manager', 'manage_links');
 	$wp_roles->remove_cap('shop_manager', 'woocommerce_debug');
@@ -809,115 +796,6 @@ class WooTweak2 {
 
     // Variations stuff *************************************************************************************************************************
     
-    function wt2_variations_enhancement()
-    {
-	global $post, $woocommerce, $product;
-	
-	$attributes = $product->get_available_attribute_variations();
-	$default_attributes = (array) maybe_unserialize(get_post_meta( $post->ID, '_default_attributes', true ));
-	$selected_attributes = apply_filters( 'woocommerce_product_default_attributes', $default_attributes );
-	
-	// Put available variations into an array and put in a Javascript variable (JSON encoded)
-	$available_variations = array();
-	
-	foreach($product->get_children() as $child_id) {
-		
-		    $variation = $product->get_child( $child_id );
-		
-		    if($variation instanceof WC_Product_Variation) {
-		
-		    	if (get_post_status( $variation->get_variation_id() ) != 'publish') continue; // Disabled
-		    	
-		    	if (!$variation->is_visible()) continue; // Visible setting - may be hidden if out of stock
-		
-		        $variation_attributes = $variation->get_variation_attributes();
-		        $availability = $variation->get_availability();
-		        $availability_html = (!empty($availability['availability'])) ? apply_filters( 'woocommerce_stock_html', '<p class="stock '.$availability['class'].'">'. $availability['availability'].'</p>', $availability['availability'] ) : '';
-		
-		        if (has_post_thumbnail($variation->get_variation_id())) {
-		            $attachment_id = get_post_thumbnail_id( $variation->get_variation_id() );
-		            $large_thumbnail_size = apply_filters('single_product_large_thumbnail_size', 'shop_single');
-		            $image = current(wp_get_attachment_image_src( $attachment_id, $large_thumbnail_size ));
-		            $image_link = current(wp_get_attachment_image_src( $attachment_id, 'full' ));
-		        } else {
-		            $image = '';
-		            $image_link = '';
-		        }
-		
-		        $available_variations[] = apply_filters('woocommerce_available_variation', array(
-		            'variation_id' => $variation->get_variation_id(),
-		            'attributes' => $variation_attributes,
-		            'image_src' => $image,
-		            'image_link' => $image_link,
-		            'price_html' => '<span class="price">'.$variation->get_price_html().'</span>',
-		            'availability_html' => $availability_html,
-		            'sku' => __('SKU:', 'woocommerce') . ' ' . $variation->sku,
-		            'min_qty' => 1,
-		            'max_qty' => $variation->stock,
-		            'is_downloadable' => $variation->is_downloadable(),
-		            'is_virtual' => $variation->is_virtual()
-		        ), $product, $variation);
-		    }
-		}
-	
-	
-	
-	?>
-	<script type="text/javascript">
-	    var wt2_product_variations_meta = new Array();
-	<?php
-	$vars = array();
-	foreach($available_variations as $var)
-	{
-	    $info = get_post_custom($var['variation_id']);
-	    ?>
-	    wt2_product_variations_meta[<?php echo $var['variation_id']; ?>] = <?php echo json_encode($info); ?>;
-	    <?php
-	}
-	?>
-	</script>
-	<?php
-    }
-    
-    function wt2_variations_enhancement_meta_table()
-    {
-	$o = get_option('WooTweak2_options');
-	if($o['wt2_variations_descriptions'] && !$o['wt2_variations_tab_on_product_page'])
-	{
-	?>
-	<br>
-	<table class="shop_attributes" id="wt2_variation_meta">
-	    <tbody>
-		<tr class="">
-		    <th><?php echo __('SKU', 'woocommerce'); ?></th>
-		    <td id="wt2_var_meta_sku"></td>
-		</tr>
-		<tr class="alt">
-		    <th><?php echo __('Weight', 'woocommerce'); ?></th>
-		    <td id="wt2_var_meta_weight"></td>
-		</tr>
-		<tr class="">
-		    <th><?php echo __('Dimensions', 'woocommerce'); ?></th>
-		    <td id="wt2_var_meta_dimentions"></td>
-		</tr>
-		<?php
-		$o = get_option('WooTweak2_options');
-		if($o['wt2_variations_descriptions'])
-		{
-		    ?>
-		    <tr class="alt">
-			<th><?php echo __('Description', 'woocommerce'); ?></th>
-			<td id="wt2_var_meta_description"></td>
-		    </tr>
-		    <?php
-		}
-		?>
-	    </tbody>
-	</table>
-	<?php
-	}
-    }
-    
     function wt2_variations_description_tab()
     {
 	$o = get_option('WooTweak2_options');
@@ -965,21 +843,21 @@ class WooTweak2 {
 				
 				    $variation_data = get_post_custom( $variation->ID );
 				    ?>
-				    <div class="woocommerce_variation wc-metabox closed">
-					<h3>
+				    <div class="woocommerce_variation options_group">
+					<p class="form-field">
 					    <input type="hidden" name="variable_post_id[<?php echo $loop; ?>]" value="<?php echo esc_attr( $variation->ID ); ?>" />
 					    <input type="hidden" class="variation_menu_order" name="variation_menu_order[<?php echo $loop; ?>]" value="<?php echo $loop; ?>" />
 					    
-					    <label><?php _e('Description', 'woocommerce') ?></label>
-					    <textarea cols="70" rows="10" class="wt2_variable_description" name="variable_description[<?php echo $loop; ?>]" id=""><?php if (isset($variation_data['_description'][0])) echo $variation_data['_description'][0]; ?></textarea>
+					    <strong>#<?php echo $variation->ID; ?> &mdash; </strong><label><?php _e('Description', 'woocommerce') ?></label>
+					    <textarea cols="70" rows="20" class="wt2_variable_description" name="variable_description[<?php echo $loop; ?>]" id=""><?php if (isset($variation_data['_description'][0])) echo $variation_data['_description'][0]; ?></textarea>
 					    <!--<input type="text" size="5" name="variable_description[<?php echo $loop; ?>]" value="<?php if (isset($variation_data['_description'][0])) echo $variation_data['_description'][0]; ?>" />-->
 					    
-					    <strong>#<?php echo $variation->ID; ?> &mdash; </strong>
+					    
 					    <?php
 						    $variation_selected_value = get_post_meta( $variation->ID, 'attribute_' /*. sanitize_title($attribute['name'])*/, true );
 						    echo $variation_selected_value;
 					    ?>
-					</h3>
+					</p>
 				    </div>				
 				    <?php
 				    $loop++; endforeach;
@@ -1012,53 +890,43 @@ class WooTweak2 {
 	
     }
     
-    function wt2_variations_tab()
+    function wt2_variations_tab($array)
     {
 	$o = get_option('WooTweak2_options');
-	if($o['wt2_variations_tab_on_product_page'])
-	{
-	    echo '<li><a href="#tab-variations">'.__('Variation', 'woocommerce').' ('.__('Description', 'woocommerce').')</a></li>';
-	}
+	
+		if($o['wt2_variations_tab_on_product_page'])
+		{
+			$array['variation_description'] = array(
+				'title' => __('Variation', 'woocommerce').' ('.__('Description', 'woocommerce').')',
+				'priority' => 30,
+				'callback' => 'WooTweak2::wt2_variations_panel'
+				);
+		}
+		return $array;
     }
 
     function wt2_variations_panel()
     {
+    global $post, $woocommerce, $product;
+
 	$o = get_option('WooTweak2_options');
-	if($o['wt2_variations_tab_on_product_page'])
-	{
-	?>
-	<div class="panel" id="tab-variations">
-	<table class="shop_attributes" id="wt2_variation_meta">
-	    <tbody>
-		<tr class="">
-		    <th><?php echo __('SKU', 'woocommerce'); ?></th>
-		    <td id="wt2_var_meta_sku"></td>
-		</tr>
-		<tr class="alt">
-		    <th><?php echo __('Weight', 'woocommerce'); ?></th>
-		    <td id="wt2_var_meta_weight"></td>
-		</tr>
-		<tr class="">
-		    <th><?php echo __('Dimensions', 'woocommerce'); ?></th>
-		    <td id="wt2_var_meta_dimentions"></td>
-		</tr>
-		<?php
-		$o = get_option('WooTweak2_options');
-		if($o['wt2_variations_descriptions'])
+
+		if($o['wt2_variations_tab_on_product_page'])
 		{
-		    ?>
-		    <tr class="alt">
-			<th><?php echo __('Description', 'woocommerce'); ?></th>
-			<td id="wt2_var_meta_description"></td>
-		    </tr>
-		    <?php
+			// echo '<div class="panel" id="tab-variations"></div>';	
+			?>
+			<h2><?php echo __('Variation', 'woocommerce').' ('.__('Description', 'woocommerce').')'; ?></h2>
+			<?php
+			foreach($product->children as $item)
+	    	{
+	    		$meta_values = get_post_meta($item);
+	    		?>
+	    		<div class="variation item<?php echo $item; ?>">
+					<?php echo $meta_values['_description'][0]; ?>
+	    		</div>
+	    		<?php
+    		}
 		}
-		?>
-	    </tbody>
-	</table>
-	</div>
-	<?php
-	}
     }
 }
 

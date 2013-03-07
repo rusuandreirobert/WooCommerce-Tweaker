@@ -3,9 +3,9 @@
     width: 48%;
     margin-top: 10px;
 }
-#wt2_variation_meta {
+/*#wt2_variation_meta {
     display: none;
-}
+}*/
 
 /*sidebar button fix*/
 a.button, button.button, input.button, #review_form #submit {

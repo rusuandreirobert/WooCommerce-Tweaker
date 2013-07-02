@@ -13,7 +13,7 @@ jQuery(document).ready(function($) {
     
     var all_descriptions = $('#tab-variation_description .variation').hide();
 
-    $('.variations select').live('change', function(){
+    $('.variations select').on('change', function(){
 	
 		var variation = $('input[name=variation_id]').attr('value');
 	

@@ -7,7 +7,8 @@ jQuery(document).ready(function($) {
 			lists.hide();
 			lists.prev().bind('click', function(evt){
 				evt.preventDefault();
-				$(this).next('.children').slideToggle();
+				$(this).toggleClass('active');
+				$(this).next('.children').slideToggle().toggleClass('opened');
 			});
 	}
     

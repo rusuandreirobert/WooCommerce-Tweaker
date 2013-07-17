@@ -1,4 +1,4 @@
-# WooTweak
+# WooCommerce Tweaker
 
 Plugin that provides some additional options and tweaks for WooCommerce Wordpress plugin which has been originally developed by WooThemes.
 

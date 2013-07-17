@@ -1,10 +1,11 @@
 <?php
 /*
-Plugin Name: WooTweak 2
+Plugin Name: WooCommerce-Tweaker
 Plugin URI: 
-Description: WooCommerce Tweaker 2
-Author: Dark Delphin
-Version: 1.1.1
+Description: Plugin that provides some additional options and tweaks for WooCommerce.
+Author: Pavel Burov (Dark Delphin)
+Author URI: http://pavelburov.com
+Version: 1.1.2
 Author URI: 
 */
 

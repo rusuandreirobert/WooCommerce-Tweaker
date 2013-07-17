@@ -1,6 +1,6 @@
 <?php
 /*
-Plugin Name: WooCommerce-Tweaker
+Plugin Name: WooCommerce Tweaker
 Plugin URI: 
 Description: Plugin that provides some additional options and tweaks for WooCommerce.
 Author: Pavel Burov (Dark Delphin)

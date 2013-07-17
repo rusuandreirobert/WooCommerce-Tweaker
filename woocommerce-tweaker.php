@@ -116,7 +116,7 @@ class WooTweak2 {
     function add_pages()
     {
 	//add_options_page('Page Title', 'Menu Title', 'administrator', __FILE__, array('WooTweak2', 'display_options_page'));
-	$page = add_submenu_page('woocommerce', 'WooTweak', 'WooTweak', 'administrator', __FILE__, array('WooTweak2', 'display_options_page'));
+	$page = add_submenu_page('woocommerce', 'Tweaker', 'Tweaker', 'administrator', __FILE__, array('WooTweak2', 'display_options_page'));
 	
 	add_action('admin_print_styles-' . $page, array($this, 'wt2_admin_scripts'));
     }

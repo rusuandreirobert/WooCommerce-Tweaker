@@ -67,7 +67,7 @@ class WooTweak2 {
 	
 	add_action('woocommerce_init', array($this, 'wt2_tweak_shop_manager_role'));
 	add_action('woocommerce_init', array($this, 'wt2_use_wp_pagenavi_func'));
-	// add_action('woocommerce_init', array($this, 'wt2_remove_related_products_on_product_page'));
+	add_action('woocommerce_init', array($this, 'wt2_remove_related_products_on_product_page'));
 	
 	add_action('woocommerce_init', array($this, 'wt2_show_sorting_feild_before_products'));
 	
@@ -84,17 +84,7 @@ class WooTweak2 {
 
 		if($o['wt2_disable_cart_functions'])
 		{
-			// Remove cart button from the product loop
-			remove_action( 'woocommerce_after_shop_loop_item', 'woocommerce_template_loop_add_to_cart', 10, 2);
-			 
-			// Remove cart button from the product details page
-			// remove_action( 'woocommerce_before_add_to_cart_form', 'woocommerce_template_single_product_add_to_cart', 10, 2);
-			remove_action( 'woocommerce_single_product_summary', 'woocommerce_template_single_add_to_cart', 30 );
-			 
-			//disabled actions (add to cart, checkout and pay)
-			remove_action( 'init', 'woocommerce_add_to_cart_action', 10);
-			remove_action( 'init', 'woocommerce_checkout_action', 10 );
-			remove_action( 'init', 'woocommerce_pay_action', 10 );
+			add_action('init', array($this, 'wt2_disable_cart_functions_callback'));
 		}
     }
     
@@ -445,6 +435,27 @@ class WooTweak2 {
     	{
     		remove_action( 'woocommerce_after_single_product_summary', 'woocommerce_output_related_products', 20);
     	}
+    }
+
+    function wt2_disable_cart_functions_callback()
+    {
+			// Remove cart button from the product loop
+			remove_action( 'woocommerce_after_shop_loop_item', 'woocommerce_template_loop_add_to_cart', 10, 2);
+			 
+			// // Remove cart button from the product details page
+			remove_action( 'woocommerce_before_add_to_cart_form', 'woocommerce_template_single_product_add_to_cart', 10, 2);
+			remove_action( 'woocommerce_single_product_summary', 'woocommerce_template_single_add_to_cart', 30 );
+			 
+			// //disabled actions (add to cart, checkout and pay)
+			remove_action( 'init', 'woocommerce_add_to_cart_action', 10);
+			remove_action( 'init', 'woocommerce_checkout_action', 10 );
+			remove_action( 'init', 'woocommerce_pay_action', 10 );
+
+			remove_action( 'woocommerce_single_product_summary', 'woocommerce_template_single_add_to_cart', 30 );
+			remove_action( 'woocommerce_simple_add_to_cart', 'woocommerce_simple_add_to_cart', 30 );
+			remove_action( 'woocommerce_grouped_add_to_cart', 'woocommerce_grouped_add_to_cart', 30 );
+			remove_action( 'woocommerce_variable_add_to_cart', 'woocommerce_variable_add_to_cart', 30 );
+			remove_action( 'woocommerce_external_add_to_cart', 'woocommerce_external_add_to_cart', 30 );
     }
     
     // Output all product info on one panel without tabs *************************************************************************************************************************
@@ -912,21 +923,25 @@ class WooTweak2 {
 
 	$o = get_option('WooTweak2_options');
 
-		if($o['wt2_variations_tab_on_product_page'])
+		if($o['wt2_variations_tab_on_product_page'] && $product->product_type == variable)
 		{
 			// echo '<div class="panel" id="tab-variations"></div>';	
 			?>
 			<h2><?php echo __('Variation', 'woocommerce').' ('.__('Description', 'woocommerce').')'; ?></h2>
 			<?php
-			foreach($product->children as $item)
-	    	{
-	    		$meta_values = get_post_meta($item);
-	    		?>
-	    		<div class="variation item<?php echo $item; ?>">
-					<?php echo $meta_values['_description'][0]; ?>
-	    		</div>
-	    		<?php
-    		}
+			if($product->children)
+			{
+				foreach($product->children as $item)
+		    	{
+		    		$meta_values = get_post_meta($item);
+
+		    		?>
+		    		<div class="variation item<?php echo $item; ?>">
+						<?php echo $meta_values['_description'][0]; ?>
+		    		</div>
+		    		<?php
+	    		}
+	    	}
 		}
     }
 }

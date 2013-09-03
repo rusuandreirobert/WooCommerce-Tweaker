@@ -442,19 +442,19 @@ class WooTweak2 {
 			// Remove cart button from the product loop
 			remove_action( 'woocommerce_after_shop_loop_item', 'woocommerce_template_loop_add_to_cart', 10, 2);
 			 
-			// // Remove cart button from the product details page
-			remove_action( 'woocommerce_before_add_to_cart_form', 'woocommerce_template_single_product_add_to_cart', 10, 2);
-			remove_action( 'woocommerce_single_product_summary', 'woocommerce_template_single_add_to_cart', 30 );
+			// Remove cart button from the product details page
+			// remove_action( 'woocommerce_before_add_to_cart_form', 'woocommerce_template_single_product_add_to_cart', 10, 2);
+			// remove_action( 'woocommerce_single_product_summary', 'woocommerce_template_single_add_to_cart', 30 );
 			 
-			// //disabled actions (add to cart, checkout and pay)
+			// disabled actions (add to cart, checkout and pay)
 			remove_action( 'init', 'woocommerce_add_to_cart_action', 10);
 			remove_action( 'init', 'woocommerce_checkout_action', 10 );
 			remove_action( 'init', 'woocommerce_pay_action', 10 );
 
-			remove_action( 'woocommerce_single_product_summary', 'woocommerce_template_single_add_to_cart', 30 );
+			// remove_action( 'woocommerce_single_product_summary', 'woocommerce_template_single_add_to_cart', 30 );
 			remove_action( 'woocommerce_simple_add_to_cart', 'woocommerce_simple_add_to_cart', 30 );
 			remove_action( 'woocommerce_grouped_add_to_cart', 'woocommerce_grouped_add_to_cart', 30 );
-			remove_action( 'woocommerce_variable_add_to_cart', 'woocommerce_variable_add_to_cart', 30 );
+			// remove_action( 'woocommerce_variable_add_to_cart', 'woocommerce_variable_add_to_cart', 30 );
 			remove_action( 'woocommerce_external_add_to_cart', 'woocommerce_external_add_to_cart', 30 );
     }
     
@@ -911,7 +911,8 @@ class WooTweak2 {
 			$array['variation_description'] = array(
 				'title' => __('Variation', 'woocommerce').' ('.__('Description', 'woocommerce').')',
 				'priority' => 30,
-				'callback' => 'WooTweak2::wt2_variations_panel'
+				// 'callback' => 'WooTweak2::wt2_variations_panel'
+				'callback' => 'wt2_variations_panel'
 				);
 		}
 		return $array;
@@ -923,7 +924,7 @@ class WooTweak2 {
 
 	$o = get_option('WooTweak2_options');
 
-		if($o['wt2_variations_tab_on_product_page'] && $product->product_type == variable)
+		if($o['wt2_variations_tab_on_product_page'] && $product->product_type == 'variable')
 		{
 			// echo '<div class="panel" id="tab-variations"></div>';	
 			?>

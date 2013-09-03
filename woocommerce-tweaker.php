@@ -912,7 +912,8 @@ class WooTweak2 {
 				'title' => __('Variation', 'woocommerce').' ('.__('Description', 'woocommerce').')',
 				'priority' => 30,
 				// 'callback' => 'WooTweak2::wt2_variations_panel'
-				'callback' => 'wt2_variations_panel'
+				// 'callback' => 'WooTweak2::wt2_variations_panel'
+				'callback' => array($this, 'wt2_variations_panel')
 				);
 		}
 		return $array;

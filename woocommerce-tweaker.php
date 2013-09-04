@@ -931,7 +931,7 @@ class WooTweak2 {
 		if($o['wt2_variations_tab_on_product_page'] && $product->product_type == 'variable')
 		{
 			?>
-			<h2><?php echo __('Variation', 'woocommerce').' ('.__('Description', 'woocommerce').')'; ?></h2>
+			<?php //echo '<h2>'.__('Variation', 'woocommerce').' ('.__('Description', 'woocommerce').')</h2>'; ?>
 			<?php
 			if($product->children)
 			{

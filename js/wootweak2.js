@@ -11,12 +11,23 @@ jQuery(document).ready(function($) {
 				$(this).next('.children').slideToggle().toggleClass('opened');
 			});
 	}
+
+	// Default variation description
+
+	var variation = $('input[name=variation_id]').attr('value');
+	
+	if(variation != '')
+	{
+		all_descriptions.hide();
+		$('.item'+variation).show();
+	}
     
     var all_descriptions = $('#tab-variation_description .variation').hide();
 
-    $('.variations select').on('change', function(){
+    // $('.variations select').on('change', function(){
+    $('input[name=variation_id]').on('change', function(){
 	
-		var variation = $('input[name=variation_id]').attr('value');
+		var variation = $(this).attr('value'); //$('input[name=variation_id]').attr('value');
 	
 		if(variation != '')
 		{

@@ -108,9 +108,7 @@ class WooTweak2 {
     function add_pages()
     {
 		//add_options_page('Page Title', 'Menu Title', 'administrator', __FILE__, array('WooTweak2', 'display_options_page'));
-		$page = add_submenu_page('woocommerce', 'Tweaker', 'Tweaker', 'administrator', __FILE__, array('WooTweak2', 'display_options_page'));
-		
-		add_action('admin_print_styles-' . $page, array($this, 'wt2_admin_scripts'));
+		$page = add_submenu_page('woocommerce', 'Tweaker', 'Tweaker', 'administrator', 'woocommerce-tweaker', array('WooTweak2', 'display_options_page'));
 	}
 
 	function wt2_admin_notice()
@@ -121,27 +119,7 @@ class WooTweak2 {
 		    <div id="message" class="updated fade"><p><?php echo __( 'Your settings have been saved.', 'woocommerce' ); ?></p></div>
 		    <?php
 		}
-    }
-
-    function wt2_admin_scripts()
-    {
-		wp_enqueue_script('jquery');
-		wp_enqueue_script('jquery-ui-core');
-		wp_enqueue_script('jquery-ui-tabs');
-		// wp_register_style('jquery-ui-tabs', plugins_url('/css/jquery.ui.tabs.css', __FILE__) );
-		if ( 'classic' == get_user_option( 'admin_color' ) ) {
-	        wp_register_style ( 'wootweak-jquery-ui-css', plugin_dir_url( __FILE__ ) . 'css/jquery-ui-classic.css' );
-	    } else {
-	        wp_register_style ( 'wootweak-jquery-ui-css', plugin_dir_url( __FILE__ ) . 'css/jquery-ui-fresh.css' );
-	    }
-	    wp_enqueue_style('wootweak-jquery-ui-css');
-		wp_enqueue_style('jquery-ui-tabs');
-		//wp_register_style('jquery-ui-base', plugins_url('/css/jquery.ui.base.css', __FILE__) );
-		//wp_enqueue_style('jquery-ui-base');
-		//wp_register_style('jquery-ui-theme', plugins_url('/css/jquery.ui.theme.css', __FILE__) );
-		//wp_enqueue_style('jquery-ui-theme');
-    }
-     
+    }  
     
     function display_options_page()
     {
@@ -151,43 +129,56 @@ class WooTweak2 {
 		<?php 
 		// screen_icon();
 		$o = get_option('WooTweak2_options');
+		$admin_link = 'admin.php?page=woocommerce-tweaker';
+
+	    $active_tab = 'general';
+	    if( !isset($_GET['tab']) ) $active_tab = 'general';
+
+	    if( isset($_GET['tab']) ) 
+	    {
+	        $active_tab = $_GET['tab'];
+	    }
 		?>
-		<script>
-		    jQuery(document).ready(function($) {
-				$('#tabs').tabs();
-		    });
-		</script>
-		<div class="icon32" style="background-image: url(<?php echo plugins_url(); ?>/woocommerce/assets/images/icons/woocommerce-icons.png)!important; background-position: -359px -6px;"><br></div>
-		<h2><?php echo __('Settings', 'woocommerce'); ?></h2>
+		<div class="icon32" style="background-image: url(<?php echo plugins_url(); ?>/woocommerce/assets/images/icons/woocommerce-icons.png)!important; background-position: -359px -6px;"></div>
+		<!-- <h2><?php echo __('Settings', 'woocommerce'); ?></h2> -->
+		<h2 class="nav-tab-wrapper">
+        <a href="<?php echo $admin_link; ?>&tab=general" class="nav-tab <?php if($active_tab == 'general') echo 'nav-tab-active'; ?>"><?php echo __('General Options', 'woocommerce'); ?></a>
+        <a href="<?php echo $admin_link; ?>&tab=capabilities" class="nav-tab <?php if($active_tab == 'capabilities') echo 'nav-tab-active'; ?>"><?php echo __('Capabilities', 'woocommerce'); ?></a>
+        <a href="<?php echo $admin_link; ?>&tab=billing" class="nav-tab <?php if($active_tab == 'billing') echo 'nav-tab-active'; ?>"><?php echo __('Checkout Page', 'woocommerce').' - '.__('Billing', 'woocommerce'); ?></a>
+        <a href="<?php echo $admin_link; ?>&tab=shipping" class="nav-tab <?php if($active_tab == 'shipping') echo 'nav-tab-active'; ?>"><?php echo __('Checkout Page', 'woocommerce').' - '.__('Shipping', 'woocommerce'); ?></a>
+        <a href="<?php echo $admin_link; ?>&tab=customernotes" class="nav-tab <?php if($active_tab == 'customernotes') echo 'nav-tab-active'; ?>"><?php echo __('Checkout Page', 'woocommerce').' - '.__('Customer Notes', 'woocommerce'); ?></a>
+    	</h2>
 		<form method="post" action="options.php" enctype="multipart/form-data">
 		<?php settings_fields('WooTweak2_plugin_options_group'); ?>
 		<?php //do_settings_sections(__FILE__); ?>
-		
-		<div id="tabs">
-			<ul>
-				<li><a href="#tabs-1"><?php echo __('General Options', 'woocommerce'); ?></a></li>
-				<li><a href="#tabs-2"><?php echo __('Capabilities', 'woocommerce'); ?></a></li>
-				<li><a href="#tabs-3"><?php echo __('Checkout Page', 'woocommerce').' - '.__('Billing', 'woocommerce'); ?></a></li>
-				<li><a href="#tabs-4"><?php echo __('Checkout Page', 'woocommerce').' - '.__('Shipping', 'woocommerce'); ?></a></li>
-				<li><a href="#tabs-5"><?php echo __('Checkout Page', 'woocommerce').' - '.__('Customer Notes', 'woocommerce'); ?></a></li>
-			</ul>
-			<div id="tabs-1">
-				<?php do_settings_sections( 'main_section' ); ?>
-			</div>
-			<div id="tabs-2">
-				<?php do_settings_sections( 'capabilities_section' ); ?>
-			</div>
-			<div id="tabs-3">
-				<?php do_settings_sections( 'order_section' ); ?>
-			</div>
-			<div id="tabs-4">
-				<?php do_settings_sections( 'shipping_section' ); ?>
-			</div>
-			<div id="tabs-5">
-				<?php do_settings_sections( 'order_comments_section' ); ?>
-			</div>
-		</div>
 
+		<?php
+		if( $active_tab == 'general') 
+        {
+            do_settings_sections( 'main_section' );   
+        }
+
+        if( $active_tab == 'capabilities') 
+        {
+            do_settings_sections( 'capabilities_section' );
+        }
+
+        if( $active_tab == 'billing') 
+        {
+            do_settings_sections( 'order_section' );
+        }
+
+        if( $active_tab == 'shipping') 
+        {
+            do_settings_sections( 'shipping_section' );
+        }
+
+        if( $active_tab == 'customernotes') 
+        {
+            do_settings_sections( 'order_comments_section' );
+        }
+        
+		?>
 		
 		<p class="submit">
 		    <input type="submit" name="submit" value="<?php echo __('Save changes', 'woocommerce'); ?>" class="button-primary"  />
@@ -457,6 +448,26 @@ class WooTweak2 {
 		remove_action( 'woocommerce_grouped_add_to_cart', 'woocommerce_grouped_add_to_cart', 30 );
 		// remove_action( 'woocommerce_variable_add_to_cart', 'woocommerce_variable_add_to_cart', 30 );
 		remove_action( 'woocommerce_external_add_to_cart', 'woocommerce_external_add_to_cart', 30 );
+
+		add_action('woocommerce_before_add_to_cart_button', array($this, 'wt2_hide_add_to_cart_variable_wrapper_begin'));
+		// add_action('woocommerce_after_add_to_cart_button', array($this, 'wt2_hide_add_to_cart_variable_wrapper_end'));
+    }
+
+    function wt2_hide_add_to_cart_variable_wrapper_begin()
+    {
+    	?>
+    	<style>
+    		form.cart .single_add_to_cart_button, .input-text.qty.text, .variations_button {
+    			display: none !important;
+    		}
+    	</style>
+    	<?php
+    }
+
+    function wt2_hide_add_to_cart_variable_wrapper_end()
+    {
+    	?>
+    	<?php
     }
     
     // Output all product info on one panel without tabs *************************************************************************************************************************

@@ -14,7 +14,7 @@ jQuery(document).ready(function($) {
 
 	// Default variation description
 
-    var all_descriptions = $('#tab-variation_description .variation').hide();
+	var all_descriptions = $('#tab-variation_description .variation').hide();
 
 	var variation = $('input[name=variation_id]').attr('value');
 	

@@ -1,12 +1,11 @@
 <?php
 /*
 Plugin Name: WooCommerce Tweaker
-Plugin URI: 
+Plugin URI: https://github.com/darkdelphin/WooCommerce-Tweaker
 Description: Plugin that provides some additional options and tweaks for WooCommerce.
 Author: Pavel Burov (Dark Delphin)
 Author URI: http://pavelburov.com
-Version: 1.1.2
-Author URI: 
+Version: 1.1.3
 */
 
 class WooTweak2 {
@@ -939,11 +938,35 @@ class WooTweak2 {
 
 		$o = get_option('WooTweak2_options');
 
-		if($o['wt2_variations_tab_on_product_page'] && $product->product_type == 'variable')
+		if($o['wt2_variations_tab_on_product_page'] && $product->product_type == 'variable' || $product->product_type == 'bundle')
 		{
 			?>
 			<?php //echo '<h2>'.__('Variation', 'woocommerce').' ('.__('Description', 'woocommerce').')</h2>'; ?>
 			<?php
+			
+			if($product->product_type == 'bundle')
+			{
+				
+				foreach($product->bundled_products as $prod)
+				{
+					
+					foreach($prod->children as $child)
+					{
+						$meta = get_post_meta($child);
+						$post = get_post($child);
+						$post = get_post($post->post_parent);
+						
+						?>
+						<div class="variation item<?php echo $child; ?>">
+							<?php // echo get_the_title($child); ?>
+							<h2><?php echo $post->post_title; ?></h2>
+							<?php echo $meta['_description'][0]; ?>
+						</div>
+						<?php
+					}
+				}
+			}
+
 			if($product->children)
 			{
 				foreach($product->children as $item)
@@ -966,7 +989,7 @@ add_action('wp_enqueue_scripts', 'wt2_styles');
 
 function wt2_styles()
 {
-	wp_register_style('wootweak2', plugins_url('/css/wootweak2.css', __FILE__) );
+	wp_register_style('wootweak2', plugins_url('/css/woocommerce-tweaker.css', __FILE__) );
 	wp_enqueue_style('wootweak2');
 }
 
@@ -974,7 +997,7 @@ add_action('wp_enqueue_scripts', 'wt2_scripts');
 
 function wt2_scripts()
 {
-	wp_enqueue_script('wootweak2', plugins_url('/js/wootweak2.js', __FILE__), array('jquery'), '1.0', true );
+	wp_enqueue_script('wootweak2', plugins_url('/js/woocommerce-tweaker.js', __FILE__), array('jquery'), '1.0', true );
 }
 
 $woot = new WooTweak2();

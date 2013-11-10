@@ -25,7 +25,25 @@ jQuery(document).ready(function($) {
 	}
     
     // $('.variations select').on('change', function(){
-    $('input[name=variation_id]').on('change', function(){
+    
+    if($('input[name=variation_id]').length > 1)
+    {
+    	console.log($('input[name=variation_id]').length);
+
+    	$('input[name^=bundle_variation_id]').on('change', function(){
+
+    		all_descriptions.hide();
+
+    		$('input[name^=bundle_variation_id]').each(function(index){
+
+    			$('.item'+$(this).val()).show();
+    			console.log($(this).val());
+    		});
+    	});
+    }
+    else
+    {
+    	$('input[name=variation_id]').on('change', function(){
 	
 		var variation = $(this).attr('value'); //$('input[name=variation_id]').attr('value');
 	
@@ -35,5 +53,7 @@ jQuery(document).ready(function($) {
 			$('.item'+variation).show();
 		}
 	
-	});
+		});
+    }
+    
 });

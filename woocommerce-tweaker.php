@@ -5,7 +5,7 @@ Plugin URI: https://github.com/darkdelphin/WooCommerce-Tweaker
 Description: Plugin that provides some additional options and tweaks for WooCommerce.
 Author: Pavel Burov (Dark Delphin)
 Author URI: http://pavelburov.com
-Version: 1.1.3
+Version: 1.1.4
 */
 
 class WooTweak2 {
@@ -58,9 +58,9 @@ class WooTweak2 {
 		add_action('woocommerce_after_single_product_summary', array($this, 'wt2_remove_panels_in_product_details'), 2);
 		
 		// In Admin panel
-		add_action('woocommerce_product_write_panel_tabs', array($this, 'wt2_variations_description_tab'));
-		add_action('woocommerce_product_write_panels', array($this, 'wt2_variations_description_tab_fields'));
-		add_action('woocommerce_process_product_meta_variable', array($this, 'wt2_variations_description_tab_fields_process'));
+		// add_action('woocommerce_product_write_panel_tabs', array($this, 'wt2_variations_description_tab'));
+		// add_action('woocommerce_product_write_panels', array($this, 'wt2_variations_description_tab_fields'));
+		// add_action('woocommerce_process_product_meta_variable', array($this, 'wt2_variations_description_tab_fields_process'));
 
 		add_filter('woocommerce_product_tabs', array($this, 'wt2_variations_tab'));
 		
@@ -85,8 +85,17 @@ class WooTweak2 {
 		{
 			add_action('init', array($this, 'wt2_disable_cart_functions_callback'));
 		}
+
+	    // Fields
+		add_action( 'woocommerce_product_after_variable_attributes', array($this, 'wt2_variable_fields'), 10, 2 );
+
+		// Some additional JS to add fields if needed for new variations
+		// add_action( 'woocommerce_product_after_variable_attributes_js', array($this, 'wt2_variable_fields_js') );
+
+		// Save variation
+		add_action( 'woocommerce_process_product_meta_variable', array($this, 'wt2_variable_fields_process'), 10, 1 );
     }
-    
+
     function wt2_init()
     {
 		//delete_option('WooTweak2'); // use to clear previous data if needed
@@ -209,7 +218,7 @@ class WooTweak2 {
 	    add_settings_field('wt2_custom_addtocart_button_text', __('Custom text for "Add to Cart" button (Single product)', 'WooTweak2'), array($this,'wt2_custom_addtocart_button_text_generate_field'), 'main_section', 'WooTweak2_main_section'); // id, title, cb func, page , section
 
 		add_settings_field('wt2_disable_dashbord_logo_menu', __('Disable logo menu in admin dashboard'), array($this,'wt2_disable_dashbord_logo_menu_generate_field'), 'main_section', 'WooTweak2_main_section'); // id, title, cb func, page , section
-		add_settings_field('wt2_disable_checkout_fields_customization', __('Disable checkout fields customization','WooTweak2'), array($this,'wt2_disable_checkout_fields_customization_generate_field'), 'main_section', 'WooTweak2_main_section'); // id, title, cb func, page , section
+		add_settings_field('wt2_enable_checkout_fields_customization', __('Enable checkout fields customization','WooTweak2'), array($this,'wt2_enable_checkout_fields_customization_generate_field'), 'main_section', 'WooTweak2_main_section'); // id, title, cb func, page , section
 		add_settings_field('wt2_remove_related_products_on_product_page', __('Remove related products on product page'), array($this,'wt2_remove_related_products_on_product_page_generate_field'), 'main_section', 'WooTweak2_main_section'); // id, title, cb func, page , section
 		add_settings_field('wt2_disable_cart_functions', __('Disable cart funcionality to simulate catalog'), array($this,'wt2_disable_cart_functions_generate_field'), 'main_section', 'WooTweak2_main_section'); // id, title, cb func, page , section
 	    add_settings_field('wt2_enhance_product_category_widget', __('Enhance product category widget with accordion for subcategories'), array($this,'wt2_enhance_product_category_widget_generate_field'), 'main_section', 'WooTweak2_main_section'); // id, title, cb func, page , section
@@ -374,10 +383,10 @@ class WooTweak2 {
 		echo '<input name="WooTweak2_options[wt2_disable_dashbord_logo_menu]" type="checkbox" value="1" '.$checked.'>';
 	}
 
-	function wt2_disable_checkout_fields_customization_generate_field()
+	function wt2_enable_checkout_fields_customization_generate_field()
 	{
-		$checked = ( 1 == $this->options['wt2_disable_checkout_fields_customization'] ) ? 'checked="checked"' : '' ;
-		echo '<input name="WooTweak2_options[wt2_disable_checkout_fields_customization]" type="checkbox" value="1" '.$checked.'>';
+		$checked = ( 1 == $this->options['wt2_enable_checkout_fields_customization'] ) ? 'checked="checked"' : '' ;
+		echo '<input name="WooTweak2_options[wt2_enable_checkout_fields_customization]" type="checkbox" value="1" '.$checked.'>';
 	}
 
 	function wt2_remove_related_products_on_product_page_generate_field()
@@ -557,7 +566,7 @@ class WooTweak2 {
     {
 	$o = get_option('WooTweak2_options');
 	
-	if(!$o['wt2_disable_checkout_fields_customization'])
+	if($o['wt2_enable_checkout_fields_customization'])
 	{
 		foreach($this->billing_array as $item)
 		{
@@ -823,7 +832,42 @@ class WooTweak2 {
 	}
 
     // Variations stuff *************************************************************************************************************************
+
+    /* TEST */
+
+	function wt2_variable_fields( $loop, $variation_data ) {
+	?>	
+		<tr>
+			<td colspan="2">
+				<div>
+					<?php // echo '<pre>'; print_r($variation_data); echo '</pre>'; ?>
+						<label>Description</label>
+						<!-- <input type="text" size="5" name="variation_text_description[]" value=""/> -->
+						<textarea name="variation_text_description[]" id="variation_text_description" cols="30" rows="10"><?php echo $variation_data['_variation_text_description'][0]; ?></textarea>
+				</div>
+			</td>
+		</tr>
+	<?php
+	}
+	 
+	function wt2_variable_fields_process( $post_id ) {
+		if (isset( $_POST['variable_sku'] ) ) :
+			$variable_sku = $_POST['variable_sku'];
+			$variable_post_id = $_POST['variable_post_id'];
+			$variable_custom_field = $_POST['variation_text_description'];
+			for ( $i = 0; $i < sizeof( $variable_sku ); $i++ ) :
+				$variation_id = (int) $variable_post_id[$i];
+				if ( isset( $variable_custom_field[$i] ) ) {
+					update_post_meta( $variation_id, '_variation_text_description', stripslashes( $variable_custom_field[$i] ) );
+				}
+			endfor;
+		endif;
+	}
+
+    /* /TEST */
     
+    /*
+
     function wt2_variations_description_tab()
     {
 		$o = get_option('WooTweak2_options');
@@ -870,17 +914,18 @@ class WooTweak2 {
 				if ($variations) foreach ($variations as $variation) : 
 				
 				    $variation_data = get_post_custom( $variation->ID );
+					$meta = get_post_meta( $variation->ID );
 				    ?>
 				    <div class="woocommerce_variation options_group">
 					<p class="form-field">
 					    <input type="hidden" name="variable_post_id[<?php echo $loop; ?>]" value="<?php echo esc_attr( $variation->ID ); ?>" />
 					    <input type="hidden" class="variation_menu_order" name="variation_menu_order[<?php echo $loop; ?>]" value="<?php echo $loop; ?>" />
 					    
-					    <strong>#<?php echo $variation->ID; ?> &mdash; </strong><label><?php _e('Description', 'woocommerce') ?></label>
+					    <strong>#<?php echo $variation->ID; ?> &mdash; <?php echo $meta['_sku'][0]; ?></strong><label><?php _e('Description', 'woocommerce') ?></label>
 					    <textarea cols="70" rows="20" class="wt2_variable_description" name="variable_description[<?php echo $loop; ?>]" id=""><?php if (isset($variation_data['_description'][0])) echo $variation_data['_description'][0]; ?></textarea>
 					    <!--<input type="text" size="5" name="variable_description[<?php echo $loop; ?>]" value="<?php if (isset($variation_data['_description'][0])) echo $variation_data['_description'][0]; ?>" />-->
 					    <?php
-						    $variation_selected_value = get_post_meta( $variation->ID, 'attribute_' /*. sanitize_title($attribute['name'])*/, true );
+						    $variation_selected_value = get_post_meta( $variation->ID, 'attribute_' , true );
 						    echo $variation_selected_value;
 					    ?>
 					</p>
@@ -894,7 +939,7 @@ class WooTweak2 {
 		    <?php
 		}
 	}
-    
+
     function wt2_variations_description_tab_fields_process( $post_id )
     {
 		$o = get_option('WooTweak2_options');
@@ -916,6 +961,8 @@ class WooTweak2 {
 		    }
 		}
     }
+
+    */
     
     function wt2_variations_tab($array)
     {
@@ -932,7 +979,7 @@ class WooTweak2 {
 		return $array;
     }
 
-    function wt2_variations_panel()
+    function wt2_variations_panel($loop, $variation_data)
     {
     	global $post, $woocommerce, $product;
 
@@ -940,10 +987,6 @@ class WooTweak2 {
 
 		if($o['wt2_variations_tab_on_product_page'] && $product->product_type == 'variable' || $product->product_type == 'bundle')
 		{
-			?>
-			<?php //echo '<h2>'.__('Variation', 'woocommerce').' ('.__('Description', 'woocommerce').')</h2>'; ?>
-			<?php
-			
 			if($product->product_type == 'bundle')
 			{
 				
@@ -955,12 +998,12 @@ class WooTweak2 {
 						$meta = get_post_meta($child);
 						$post = get_post($child);
 						$post = get_post($post->post_parent);
-						
 						?>
 						<div class="variation item<?php echo $child; ?>">
 							<?php // echo get_the_title($child); ?>
 							<h2><?php echo $post->post_title; ?></h2>
-							<?php echo $meta['_description'][0]; ?>
+							<?php // echo $meta['_description'][0]; ?>
+							<?php echo $meta['_variation_text_description'][0]; ?>
 						</div>
 						<?php
 					}
@@ -972,10 +1015,10 @@ class WooTweak2 {
 				foreach($product->children as $item)
 		    	{
 		    		$meta_values = get_post_meta($item);
-
 		    		?>
 		    		<div class="variation item<?php echo $item; ?>">
-						<?php echo $meta_values['_description'][0]; ?>
+						<?php // echo $meta_values['_description'][0]; ?>
+						<?php echo $meta_values['_variation_text_description'][0]; ?>
 		    		</div>
 		    		<?php
 	    		}

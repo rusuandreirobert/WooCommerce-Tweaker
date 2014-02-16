@@ -842,8 +842,8 @@ class WooTweak2 {
 				<div>
 					<?php // echo '<pre>'; print_r($variation_data); echo '</pre>'; ?>
 						<label>Description</label>
-						<!-- <input type="text" size="5" name="variation_text_description[]" value=""/> -->
-						<textarea name="variation_text_description[]" id="variation_text_description" cols="30" rows="10"><?php echo $variation_data['_variation_text_description'][0]; ?></textarea>
+						<!-- <input type="text" size="5" name="description[]" value=""/> -->
+						<textarea name="description[]" id="description" cols="30" rows="10"><?php echo $variation_data['_description'][0]; ?></textarea>
 				</div>
 			</td>
 		</tr>
@@ -854,11 +854,11 @@ class WooTweak2 {
 		if (isset( $_POST['variable_sku'] ) ) :
 			$variable_sku = $_POST['variable_sku'];
 			$variable_post_id = $_POST['variable_post_id'];
-			$variable_custom_field = $_POST['variation_text_description'];
+			$variable_custom_field = $_POST['description'];
 			for ( $i = 0; $i < sizeof( $variable_sku ); $i++ ) :
 				$variation_id = (int) $variable_post_id[$i];
 				if ( isset( $variable_custom_field[$i] ) ) {
-					update_post_meta( $variation_id, '_variation_text_description', stripslashes( $variable_custom_field[$i] ) );
+					update_post_meta( $variation_id, '_description', stripslashes( $variable_custom_field[$i] ) );
 				}
 			endfor;
 		endif;
@@ -1003,7 +1003,7 @@ class WooTweak2 {
 							<?php // echo get_the_title($child); ?>
 							<h2><?php echo $post->post_title; ?></h2>
 							<?php // echo $meta['_description'][0]; ?>
-							<?php echo $meta['_variation_text_description'][0]; ?>
+							<?php echo $meta['_description'][0]; ?>
 						</div>
 						<?php
 					}
@@ -1018,7 +1018,7 @@ class WooTweak2 {
 		    		?>
 		    		<div class="variation item<?php echo $item; ?>">
 						<?php // echo $meta_values['_description'][0]; ?>
-						<?php echo $meta_values['_variation_text_description'][0]; ?>
+						<?php echo $meta_values['_description'][0]; ?>
 		    		</div>
 		    		<?php
 	    		}

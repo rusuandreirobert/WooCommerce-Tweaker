@@ -818,6 +818,7 @@ class WooTweak2 {
 	}
 
 	// Widget enhancement stuff *****************************************************************************************************************
+	
 	function wt2_frontend_enhancement() //wt2_product_category_widget_enhancement
 	{
 		$o = get_option('WooTweak2_options');
@@ -840,9 +841,7 @@ class WooTweak2 {
 		<tr>
 			<td colspan="2">
 				<div>
-					<?php // echo '<pre>'; print_r($variation_data); echo '</pre>'; ?>
 						<label>Description</label>
-						<!-- <input type="text" size="5" name="description[]" value=""/> -->
 						<textarea name="description[]" id="description" cols="30" rows="10"><?php echo $variation_data['_description'][0]; ?></textarea>
 				</div>
 			</td>
@@ -851,17 +850,22 @@ class WooTweak2 {
 	}
 	 
 	function wt2_variable_fields_process( $post_id ) {
-		if (isset( $_POST['variable_sku'] ) ) :
+		if (isset( $_POST['variable_sku'] ) ) 
+		{
 			$variable_sku = $_POST['variable_sku'];
 			$variable_post_id = $_POST['variable_post_id'];
 			$variable_custom_field = $_POST['description'];
-			for ( $i = 0; $i < sizeof( $variable_sku ); $i++ ) :
+
+			// file_put_contents('log.txt', print_r($_POST['variable_sku'], true) . '\r\n' . print_r($_POST['variable_post_id'], true) . '\r\n' . print_r($_POST['description'], true));
+
+			for ( $i = 0; $i < sizeof( $variable_sku ); $i++ ) 
+			{
 				$variation_id = (int) $variable_post_id[$i];
 				if ( isset( $variable_custom_field[$i] ) ) {
 					update_post_meta( $variation_id, '_description', stripslashes( $variable_custom_field[$i] ) );
 				}
-			endfor;
-		endif;
+			}
+		}
 	}
 
     /* /TEST */

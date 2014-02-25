@@ -151,10 +151,11 @@ class WooTweak2 {
 		<!-- <h2><?php echo __('Settings', 'woocommerce'); ?></h2> -->
 		<h2 class="nav-tab-wrapper">
         <a href="<?php echo $admin_link; ?>&tab=general" class="nav-tab <?php if($active_tab == 'general') echo 'nav-tab-active'; ?>"><?php echo __('General Options', 'woocommerce'); ?></a>
+        <a href="<?php echo $admin_link; ?>&tab=visual" class="nav-tab <?php if($active_tab == 'visual') echo 'nav-tab-active'; ?>"><?php echo __('Visual tweaks', 'woocommerce'); ?></a>
         <a href="<?php echo $admin_link; ?>&tab=capabilities" class="nav-tab <?php if($active_tab == 'capabilities') echo 'nav-tab-active'; ?>"><?php echo __('Capabilities', 'woocommerce'); ?></a>
         <a href="<?php echo $admin_link; ?>&tab=billing" class="nav-tab <?php if($active_tab == 'billing') echo 'nav-tab-active'; ?>"><?php echo __('Checkout Page', 'woocommerce').' - '.__('Billing', 'woocommerce'); ?></a>
         <a href="<?php echo $admin_link; ?>&tab=shipping" class="nav-tab <?php if($active_tab == 'shipping') echo 'nav-tab-active'; ?>"><?php echo __('Checkout Page', 'woocommerce').' - '.__('Shipping', 'woocommerce'); ?></a>
-        <a href="<?php echo $admin_link; ?>&tab=customernotes" class="nav-tab <?php if($active_tab == 'customernotes') echo 'nav-tab-active'; ?>"><?php echo __('Checkout Page', 'woocommerce').' - '.__('Customer Notes', 'woocommerce'); ?></a>
+        <!-- <a href="<?php echo $admin_link; ?>&tab=customernotes" class="nav-tab <?php if($active_tab == 'customernotes') echo 'nav-tab-active'; ?>"><?php echo __('Checkout Page', 'woocommerce').' - '.__('Customer Notes', 'woocommerce'); ?></a> -->
     	</h2>
 		<form method="post" action="options.php" enctype="multipart/form-data">
 		<?php settings_fields('WooTweak2_plugin_options_group'); ?>
@@ -164,6 +165,11 @@ class WooTweak2 {
 		if( $active_tab == 'general') 
         {
             do_settings_sections( 'main_section' );   
+        }
+
+        if( $active_tab == 'visual') 
+        {
+            do_settings_sections( 'visual_section' );   
         }
 
         if( $active_tab == 'capabilities') 
@@ -179,12 +185,13 @@ class WooTweak2 {
         if( $active_tab == 'shipping') 
         {
             do_settings_sections( 'shipping_section' );
-        }
-
-        if( $active_tab == 'customernotes') 
-        {
             do_settings_sections( 'order_comments_section' );
         }
+
+        // if( $active_tab == 'customernotes') 
+        // {
+        
+        // }
         
 		?>
 		
@@ -201,23 +208,28 @@ class WooTweak2 {
 	    register_setting('WooTweak2_plugin_options_group', 'WooTweak2_options', array($this, 'WooTweak2_validate_settings')); //3rd param optional callback func
 
 	    add_settings_section('WooTweak2_main_section', __('General Options', 'woocommerce'), array($this, 'WooTweak2_main_section_cb'), 'main_section'); //id, title, callback, page
+	    add_settings_section('WooTweak2_main_section', __('Visual tweaks', 'woocommerce'), array($this, 'WooTweak2_visual_section_cb'), 'visual_section'); //id, title, callback, page
 	    add_settings_section('WooTweak2_capabilities_section', __('Capabilities', 'woocommerce'), array($this, 'WooTweak2_capabilities_section_cb'), 'capabilities_section'); //id, title, callback, page
 	    add_settings_section('WooTweak2_order_section', __('Checkout Page', 'woocommerce').' - '.__('Billing', 'woocommerce'), array($this, 'WooTweak2_order_section_cb'), 'order_section'); //id, title, callback, page
 	    add_settings_section('WooTweak2_shipping_section', __('Checkout Page', 'woocommerce').' - '.__('Shipping', 'woocommerce'), array($this, 'WooTweak2_shipping_section_cb'), 'shipping_section'); //id, title, callback, page
 	    add_settings_section('WooTweak2_order_comments_section', __('Checkout Page', 'woocommerce').' - '.__('Customer Notes', 'woocommerce'), array($this, 'WooTweak2_order_comments_section_cb'), 'order_comments_section'); //id, title, callback, page
 	    
+	    
 	    // ADD ALL add_settings_field FUNCTIONS HERE
-	    add_settings_field('wt2_disable_tabs_on_product_page', __('Disable tabs on product page', 'WooTweak2'), array($this,'wt2_disable_tabs_on_product_page_generate_field'), 'main_section', 'WooTweak2_main_section'); // id, title, cb func, page , section
-	    add_settings_field('wt2_disable_tabs_on_product_page_float_description', __('Float description to right', 'WooTweak2'), array($this,'wt2_disable_tabs_on_product_page_float_description_generate_field'), 'main_section', 'WooTweak2_main_section'); // id, title, cb func, page , section
+	    add_settings_field('wt2_disable_tabs_on_product_page', __('Disable tabs on product page', 'WooTweak2'), array($this,'wt2_disable_tabs_on_product_page_generate_field'), 'visual_section', 'WooTweak2_main_section'); // id, title, cb func, page , section
+	    add_settings_field('wt2_disable_tabs_on_product_page_float_description', __('Float description to right', 'WooTweak2'), array($this,'wt2_disable_tabs_on_product_page_float_description_generate_field'), 'visual_section', 'WooTweak2_main_section'); // id, title, cb func, page , section
+	    add_settings_field('wt2_checkout_form_width', __('One column checkout form', 'WooTweak2'), array($this,'wt2_checkout_form_width_generate_field'), 'visual_section', 'WooTweak2_main_section'); // id, title, cb func, page , section
+	    add_settings_field('wt2_show_sort_before_products', __('Show sorting field before products', 'WooTweak2'), array($this,'wt2_show_sort_before_products_generate_field'), 'visual_section', 'WooTweak2_main_section'); // id, title, cb func, page , section
+		add_settings_field('wt2_disable_dashbord_logo_menu', __('Disable logo menu in admin dashboard'), array($this,'wt2_disable_dashbord_logo_menu_generate_field'), 'visual_section', 'WooTweak2_main_section'); // id, title, cb func, page , section
+	    add_settings_field('wt2_custom_addtocart_button_text', __('Custom text for "Add to Cart" button (Single product)', 'WooTweak2'), array($this,'wt2_custom_addtocart_button_text_generate_field'), 'visual_section', 'WooTweak2_main_section'); // id, title, cb func, page , section
+
+
+
 	    add_settings_field('wt2_disable_product_attributes_show', __('Disable attributes on product page', 'WooTweak2'), array($this,'wt2_disable_product_attributes_show_generate_field'), 'main_section', 'WooTweak2_main_section'); // id, title, cb func, page , section
-	    add_settings_field('wt2_checkout_form_width', __('One column checkout form', 'WooTweak2'), array($this,'wt2_checkout_form_width_generate_field'), 'main_section', 'WooTweak2_main_section'); // id, title, cb func, page , section
 	    add_settings_field('wt2_variations_descriptions', __('Add description field for variantions', 'WooTweak2'), array($this,'wt2_variations_descriptions_generate_field'), 'main_section', 'WooTweak2_main_section'); // id, title, cb func, page , section
 	    add_settings_field('wt2_variations_tab_on_product_page', __('Add variations tab on product page', 'WooTweak2'), array($this,'wt2_variations_tab_on_product_page_generate_field'), 'main_section', 'WooTweak2_main_section'); // id, title, cb func, page , section
 	    add_settings_field('wt2_use_wp_pagenavi', __('Use WP PageNavi plugin for pagination (if installed and active)', 'WooTweak2'), array($this,'wt2_use_wp_pagenavi_generate_field'), 'main_section', 'WooTweak2_main_section'); // id, title, cb func, page , section
-	    add_settings_field('wt2_show_sort_before_products', __('Show sorting field before products', 'WooTweak2'), array($this,'wt2_show_sort_before_products_generate_field'), 'main_section', 'WooTweak2_main_section'); // id, title, cb func, page , section
-	    add_settings_field('wt2_custom_addtocart_button_text', __('Custom text for "Add to Cart" button (Single product)', 'WooTweak2'), array($this,'wt2_custom_addtocart_button_text_generate_field'), 'main_section', 'WooTweak2_main_section'); // id, title, cb func, page , section
 
-		add_settings_field('wt2_disable_dashbord_logo_menu', __('Disable logo menu in admin dashboard'), array($this,'wt2_disable_dashbord_logo_menu_generate_field'), 'main_section', 'WooTweak2_main_section'); // id, title, cb func, page , section
 		add_settings_field('wt2_enable_checkout_fields_customization', __('Enable checkout fields customization','WooTweak2'), array($this,'wt2_enable_checkout_fields_customization_generate_field'), 'main_section', 'WooTweak2_main_section'); // id, title, cb func, page , section
 		add_settings_field('wt2_remove_related_products_on_product_page', __('Remove related products on product page'), array($this,'wt2_remove_related_products_on_product_page_generate_field'), 'main_section', 'WooTweak2_main_section'); // id, title, cb func, page , section
 		add_settings_field('wt2_disable_cart_functions', __('Disable cart funcionality to simulate catalog'), array($this,'wt2_disable_cart_functions_generate_field'), 'main_section', 'WooTweak2_main_section'); // id, title, cb func, page , section
@@ -251,6 +263,8 @@ class WooTweak2 {
 	}
      
     function WooTweak2_main_section_cb(){// Optional
+	}
+    function WooTweak2_visual_section_cb(){// Optional
 	}
     function WooTweak2_order_section_cb(){// Optional
 	}
@@ -1023,7 +1037,7 @@ class WooTweak2 {
 		    		<div class="variation item<?php echo $item; ?>">
 						<?php // echo $meta_values['_description'][0]; ?>
 						<?php echo $meta_values['_description'][0]; ?>
-		    		</div>
+		    		</div><!-- /item<?php echo $item; ?> -->
 		    		<?php
 	    		}
 	    	}

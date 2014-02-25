@@ -26,9 +26,9 @@ jQuery(document).ready(function($) {
     
     // $('.variations select').on('change', function(){
     
-    if($('input[name=variation_id]').length > 1)
+    if($('input[name=variation_id]').length > 1 && $('input[name^=bundle_variation_id]').length > 0)
     {
-    	console.log($('input[name=variation_id]').length);
+    	// console.log($('input[name=variation_id]').length);
 
     	$('input[name^=bundle_variation_id]').on('change', function(){
 

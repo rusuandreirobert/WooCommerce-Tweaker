@@ -1,0 +1,10 @@
+#variable_product_options .woocommerce_variation table td.data table.data_table td .wp-editor-wrap .mce_formatselect {
+    width: auto;
+}
+#variable_product_options .woocommerce_variation table td.data table.data_table td .wp-editor-wrap table td {
+    width: auto;
+    vertical-align: middle;
+}
+#variable_product_options .woocommerce_variation table td.data table.data_table td .wp-editor-wrap .mceToolbar {
+    margin: 0;
+}

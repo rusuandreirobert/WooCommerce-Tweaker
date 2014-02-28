@@ -64,6 +64,10 @@ class WooTweak2 {
 
 		add_filter('woocommerce_product_tabs', array($this, 'wt2_variations_tab'));
 		
+		// add_filter('woocommerce_get_variation_price', array($this, 'wt2_variable_default_price_filter'), 10 , 2);
+		add_filter('woocommerce_variable_price_html', array($this, 'wt2_variable_default_price_html_filter'), 10 , 2);
+		add_filter('woocommerce_variable_sale_price_html', array($this, 'wt2_variable_default_sale_price_filter'), 10 , 2);
+
 		add_action('woocommerce_init', array($this, 'wt2_tweak_shop_manager_role'));
 		add_action('woocommerce_init', array($this, 'wt2_use_wp_pagenavi_func'));
 		add_action('woocommerce_init', array($this, 'wt2_remove_related_products_on_product_page'));
@@ -88,12 +92,16 @@ class WooTweak2 {
 
 	    // Fields
 		add_action( 'woocommerce_product_after_variable_attributes', array($this, 'wt2_variable_fields'), 10, 2 );
+		
+		add_action( 'woocommerce_product_options_sku', array($this, 'wt2_variable_default_price_field'), 10, 2 );
 
 		// Some additional JS to add fields if needed for new variations
 		// add_action( 'woocommerce_product_after_variable_attributes_js', array($this, 'wt2_variable_fields_js') );
 
 		// Save variation
 		add_action( 'woocommerce_process_product_meta_variable', array($this, 'wt2_variable_fields_process'), 10, 1 );
+		
+		add_action( 'woocommerce_process_product_meta_variable', array($this, 'wt2_variable_default_price_field_update'), 10, 1 );
     }
 
     function wt2_init()
@@ -217,22 +225,37 @@ class WooTweak2 {
 	    
 	    // ADD ALL add_settings_field FUNCTIONS HERE
 	    add_settings_field('wt2_disable_tabs_on_product_page', __('Disable tabs on product page', 'WooTweak2'), array($this,'wt2_disable_tabs_on_product_page_generate_field'), 'visual_section', 'WooTweak2_main_section'); // id, title, cb func, page , section
+	    
 	    add_settings_field('wt2_disable_tabs_on_product_page_float_description', __('Float description to right', 'WooTweak2'), array($this,'wt2_disable_tabs_on_product_page_float_description_generate_field'), 'visual_section', 'WooTweak2_main_section'); // id, title, cb func, page , section
+	    
 	    add_settings_field('wt2_checkout_form_width', __('One column checkout form', 'WooTweak2'), array($this,'wt2_checkout_form_width_generate_field'), 'visual_section', 'WooTweak2_main_section'); // id, title, cb func, page , section
+	    
 	    add_settings_field('wt2_show_sort_before_products', __('Show sorting field before products', 'WooTweak2'), array($this,'wt2_show_sort_before_products_generate_field'), 'visual_section', 'WooTweak2_main_section'); // id, title, cb func, page , section
+		
 		add_settings_field('wt2_disable_dashbord_logo_menu', __('Disable logo menu in admin dashboard'), array($this,'wt2_disable_dashbord_logo_menu_generate_field'), 'visual_section', 'WooTweak2_main_section'); // id, title, cb func, page , section
+	    
 	    add_settings_field('wt2_custom_addtocart_button_text', __('Custom text for "Add to Cart" button (Single product)', 'WooTweak2'), array($this,'wt2_custom_addtocart_button_text_generate_field'), 'visual_section', 'WooTweak2_main_section'); // id, title, cb func, page , section
 
 
 
 	    add_settings_field('wt2_disable_product_attributes_show', __('Disable attributes on product page', 'WooTweak2'), array($this,'wt2_disable_product_attributes_show_generate_field'), 'main_section', 'WooTweak2_main_section'); // id, title, cb func, page , section
+	    
 	    add_settings_field('wt2_variations_descriptions', __('Add description field for variantions', 'WooTweak2'), array($this,'wt2_variations_descriptions_generate_field'), 'main_section', 'WooTweak2_main_section'); // id, title, cb func, page , section
+	    
 	    add_settings_field('wt2_variations_tab_on_product_page', __('Add variations tab on product page', 'WooTweak2'), array($this,'wt2_variations_tab_on_product_page_generate_field'), 'main_section', 'WooTweak2_main_section'); // id, title, cb func, page , section
+	    
+	    add_settings_field('wt2_variation_price_formating', __('Variation price format', 'WooTweak2'), array($this,'wt2_variation_price_formating_generate_field'), 'main_section', 'WooTweak2_main_section'); // id, title, cb func, page , section
+	    
+	    add_settings_field('wt2_use_wysiwyg_for_variation_description', __('Use WYSIWYG editor for variation description', 'WooTweak2'), array($this,'wt2_use_wysiwyg_for_variation_description_generate_field'), 'main_section', 'WooTweak2_main_section'); // id, title, cb func, page , section
+	    	    
 	    add_settings_field('wt2_use_wp_pagenavi', __('Use WP PageNavi plugin for pagination (if installed and active)', 'WooTweak2'), array($this,'wt2_use_wp_pagenavi_generate_field'), 'main_section', 'WooTweak2_main_section'); // id, title, cb func, page , section
 
 		add_settings_field('wt2_enable_checkout_fields_customization', __('Enable checkout fields customization','WooTweak2'), array($this,'wt2_enable_checkout_fields_customization_generate_field'), 'main_section', 'WooTweak2_main_section'); // id, title, cb func, page , section
+
 		add_settings_field('wt2_remove_related_products_on_product_page', __('Remove related products on product page'), array($this,'wt2_remove_related_products_on_product_page_generate_field'), 'main_section', 'WooTweak2_main_section'); // id, title, cb func, page , section
+
 		add_settings_field('wt2_disable_cart_functions', __('Disable cart funcionality to simulate catalog'), array($this,'wt2_disable_cart_functions_generate_field'), 'main_section', 'WooTweak2_main_section'); // id, title, cb func, page , section
+
 	    add_settings_field('wt2_enhance_product_category_widget', __('Enhance product category widget with accordion for subcategories'), array($this,'wt2_enhance_product_category_widget_generate_field'), 'main_section', 'WooTweak2_main_section'); // id, title, cb func, page , section
 
 		add_settings_field('wt2_manage_pages', __('Edit pages', 'WooTweak2'), array($this,'wt2_manage_pages_generate_field'), 'capabilities_section', 'WooTweak2_capabilities_section'); // id, title, cb func, page , section
@@ -332,6 +355,21 @@ class WooTweak2 {
 		$checked = ( 1 == $this->options['wt2_variations_tab_on_product_page'] ) ? 'checked="checked"' : '' ;
 		echo '<input name="WooTweak2_options[wt2_variations_tab_on_product_page]" type="checkbox" value="1" '.$checked.''.$enabled.'>';
 	}
+
+	function wt2_use_wysiwyg_for_variation_description_generate_field()
+    {
+    	$checked = ( 1 == $this->options['wt2_use_wysiwyg_for_variation_description'] ) ? 'checked="checked"' : '' ;
+    	echo '<input name="WooTweak2_options[wt2_use_wysiwyg_for_variation_description]" type="checkbox" value="1" '.$checked.'>';
+    }
+
+    function wt2_variation_price_formating_generate_field()
+    {
+    	$o = get_option('WooTweak2_options');
+    	echo '<select name="WooTweak2_options[wt2_variation_price_formating]">';
+	    	echo '<option value="dash" '.selected('dash', $o['wt2_variation_price_formating']).'>Min–Max</option>';
+	    	echo '<option value="fromto" '.selected('fromto', $o['wt2_variation_price_formating']).'>From Min to Max</option>';
+    	echo '</select>';
+    }
 	
     function wt2_use_wp_pagenavi_generate_field()
 	{
@@ -851,16 +889,143 @@ class WooTweak2 {
     /* TEST */
 
 	function wt2_variable_fields( $loop, $variation_data ) {
+		$o = get_option('WooTweak2_options');
 	?>	
 		<tr>
 			<td colspan="2">
 				<div>
-						<label>Description</label>
-						<textarea name="description[]" id="description" cols="30" rows="10"><?php echo $variation_data['_description'][0]; ?></textarea>
+						<label>Description <a class="tips" data-tip="Individual description for a variation that would be displayed on a variation description tab" href="#">[?]</a></label>
+						<?php 
+						if($o['wt2_use_wysiwyg_for_variation_description']) wp_editor( $variation_data['_description'][0], 'description[]' );
+						else
+						{
+							?>
+							<textarea name="description[]" id="description" cols="30" rows="10"><?php echo $variation_data['_description'][0]; ?></textarea>
+							<?php
+						}
+						?>
 				</div>
 			</td>
 		</tr>
 	<?php
+	}
+
+	function wt2_variable_default_price_field( $loop )
+	{
+		?>
+		<p class="form-field">
+			<label>Default variation price (<?php echo get_woocommerce_currency_symbol(); ?>)</label> 
+			<!-- <a class="tips" data-tip="Price that would be displayed in 'From:' label instead of the lowest one" href="#">[?]</a> -->
+			<input type="text" class="short" name="default_variation_price" id="default_variation_price" value="<?php echo get_post_meta(get_the_ID(), '_default_variation_price', true); ?>">
+			<img class="help_tip" data-tip="Price that would be displayed in 'From:' label instead of the lowest one. If you don't need it - leave blank or set to 0" src="<?php echo plugins_url(); ?>/woocommerce/assets/images/help.png" height="16" width="16" />
+		</p>
+		<p class="form-field">
+			<label>Default variation sale price (<?php echo get_woocommerce_currency_symbol(); ?>)</label> 
+			<!-- <a class="tips" data-tip="Price that would be displayed in 'From:' label instead of the lowest one" href="#">[?]</a> -->
+			<input type="text" class="short" name="default_variation_sale_price" id="default_variation_sale_price" value="<?php echo get_post_meta(get_the_ID(), '_default_variation_sale_price', true); ?>">
+			<img class="help_tip" data-tip="Price that would be displayed on sales in 'From:' label instead of the lowest one. If you don't need it - leave blank or set to 0" src="<?php echo plugins_url(); ?>/woocommerce/assets/images/help.png" height="16" width="16" />
+		</p>	
+		<?php
+	}
+
+	function wt2_variable_default_price_field_update( $post_id )
+	{
+		if (isset( $_POST['default_variation_price'] ) ) 
+		{
+			update_post_meta( $post_id, '_default_variation_price', sanitize_text_field( $_POST['default_variation_price'] ) );
+		}
+		if (isset( $_POST['default_variation_sale_price'] ) ) 
+		{
+			update_post_meta( $post_id, '_default_variation_sale_price', sanitize_text_field( $_POST['default_variation_sale_price'] ) );
+		}
+	}
+
+	function wt2_variable_default_sale_price_filter( $price, $product )
+	{
+		$o = get_option('WooTweak2_options');
+
+		$id = get_the_ID();
+		$def = get_post_meta($id, '_default_variation_price', true);
+		$def_sale = get_post_meta($id, '_default_variation_sale_price', true);
+
+		// $price = $product->get_variation_sale_price('min');
+		$price = '';
+
+		if($o['wt2_variation_price_formating'] == 'dash')
+		{	
+			$price = '<del><span class="amount">';
+			
+			if( $def != '' && $def != 0 ) $price .= woocommerce_price($def);
+			else $price .= woocommerce_price($product->min_variation_price);
+
+			$price .= '</span>–<span class="amount">' . woocommerce_price($product->max_variation_price) . '</span></del>';
+
+			$price .= '<ins><span class="amount">';
+			
+			if( $def_sale != '' && $def_sale != 0 ) $price .= woocommerce_price($def_sale);
+			else $price .= woocommerce_price($product->min_variation_price);
+
+			$price .= '</span>–<span class="amount">' . woocommerce_price($product->max_variation_price) . '</span></ins>';
+		}
+
+		if($o['wt2_variation_price_formating'] == 'fromto')
+		{
+			$price = '<del><span class="from">' . _x('From', 'min_price', 'woocommerce') . '</span> ';
+
+			if( $def != '' && $def != 0 ) $price .= woocommerce_price($def);
+			else $price .= woocommerce_price($product->min_variation_price);
+
+			$price .= ' <span class="from">' . _x('to', 'max_price', 'woocommerce') .   '</span> ' . woocommerce_price($product->max_variation_price) . '</del>';
+
+			$price .= '<ins><span class="from">' . _x('From', 'min_price', 'woocommerce') . '</span> ';
+
+			if( $def_sale != '' && $def_sale != 0 ) $price .= woocommerce_price($def_sale);
+			else $price .= woocommerce_price($product->min_variation_price);
+
+			$price .= ' <span class="from">' . _x('to', 'max_price', 'woocommerce') .   '</span> ' . woocommerce_price($product->max_variation_price) . '</ins>';
+		}
+
+		return $price;
+	}
+
+	function wt2_variable_default_price_html_filter( $price, $product )
+	{
+		$o = get_option('WooTweak2_options');
+
+		$id = get_the_ID();
+		$def = get_post_meta($id, '_default_variation_price', true);
+		
+		$price = '';
+
+		if ( $product->min_variation_price && $product->max_variation_price && $product->max_variation_price !== $product->min_variation_price)
+		{
+			
+			if($o['wt2_variation_price_formating'] == 'dash')
+			{	
+				$price = '<span class="amount">';
+				
+				if( $def != '' && $def != 0 ) $price .= woocommerce_price($def);
+				else $price .= woocommerce_price($product->min_variation_price);
+
+				$price .= '</span>–<span class="amount">' . woocommerce_price($product->max_variation_price) . '</span>';
+			}
+
+			if($o['wt2_variation_price_formating'] == 'fromto')
+			{
+				$price = '<span class="from">' . _x('From', 'min_price', 'woocommerce') . '</span> ';
+
+				if( $def != '' && $def != 0 ) $price .= woocommerce_price($def);
+				else $price .= woocommerce_price($product->min_variation_price);
+
+				$price .= ' <span class="from">' . _x('to', 'max_price', 'woocommerce') .   '</span> ' . woocommerce_price($product->max_variation_price);
+			}
+		}
+		else
+		{
+			$price = woocommerce_price($product->get_price());
+		}
+
+		return $price;
 	}
 	 
 	function wt2_variable_fields_process( $post_id ) {
@@ -868,8 +1033,10 @@ class WooTweak2 {
 		{
 			$variable_sku = $_POST['variable_sku'];
 			$variable_post_id = $_POST['variable_post_id'];
+
 			$variable_custom_field = $_POST['description'];
 
+			// $variable_default_price = $_POST['default_variation_price'];
 			// file_put_contents('log.txt', print_r($_POST['variable_sku'], true) . '\r\n' . print_r($_POST['variable_post_id'], true) . '\r\n' . print_r($_POST['description'], true));
 
 			for ( $i = 0; $i < sizeof( $variable_sku ); $i++ ) 
@@ -877,6 +1044,7 @@ class WooTweak2 {
 				$variation_id = (int) $variable_post_id[$i];
 				if ( isset( $variable_custom_field[$i] ) ) {
 					update_post_meta( $variation_id, '_description', stripslashes( $variable_custom_field[$i] ) );
+					// update_post_meta( $variation_id, '_default_variation_price', stripslashes( $variable_default_price[$i] ) );
 				}
 			}
 		}
@@ -1052,6 +1220,14 @@ function wt2_styles()
 {
 	wp_register_style('wootweak2', plugins_url('/css/woocommerce-tweaker.css', __FILE__) );
 	wp_enqueue_style('wootweak2');
+}
+
+add_action('admin_enqueue_scripts', 'wt2_admin_styles');
+
+function wt2_admin_styles()
+{
+	wp_register_style('wootweak2admin', plugins_url('/css/woocommerce-tweaker-admin.css', __FILE__) );
+	wp_enqueue_style('wootweak2admin');
 }
 
 add_action('wp_enqueue_scripts', 'wt2_scripts');

@@ -2,6 +2,14 @@
 
 Plugin that provides some additional options and tweaks for WooCommerce Wordpress plugin which has been originally developed by WooThemes.
 
+Update 1.1.5
+* Settings menu update
+* "Flexbox layout" for better visual elements alignment 
+
+Update 1.1.4
+* WYSIWYG editor for variation description
+* Variation starting price for From-To
+
 Update 1.1.3:
 * Support for bundles
 * Fixes and clean up

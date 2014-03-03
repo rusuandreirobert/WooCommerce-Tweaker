@@ -27,5 +27,6 @@
 
 .woocommerce ul.products li.product a:last-child, .woocommerce-page ul.products li.product a:last-child {
     margin-top: auto;
+    white-space: normal;
 }
 

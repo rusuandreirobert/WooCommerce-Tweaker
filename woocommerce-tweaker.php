@@ -172,39 +172,37 @@ class WooTweak2 {
 		<form method="post" action="options.php" enctype="multipart/form-data">
 		<?php settings_fields('WooTweak2_plugin_options_group'); ?>
 		<?php //do_settings_sections(__FILE__); ?>
-
+		
+		<div class="tab general <?php if( $active_tab == 'general') echo 'active'; ?>">
+			<?php do_settings_sections( 'main_section' ); ?>
+		</div>
+		<div class="tab visual <?php if( $active_tab == 'visual') echo 'active'; ?>">
+			<?php do_settings_sections( 'visual_section' ); ?>
+		</div>
+		<div class="tab capabilities <?php if( $active_tab == 'capabilities') echo 'active'; ?>">
+			<?php do_settings_sections( 'capabilities_section' ); ?>
+		</div>
+		<div class="tab billing <?php if( $active_tab == 'billing') echo 'active'; ?>">
+			<?php do_settings_sections( 'order_section' ); ?>
+		</div>
+		<div class="tab shipping <?php if( $active_tab == 'shipping') echo 'active'; ?>">
+			<?php
+				do_settings_sections( 'shipping_section' );
+            	do_settings_sections( 'order_comments_section' );
+			?>
+		</div>
 		<?php
-		if( $active_tab == 'general') 
-        {
-            do_settings_sections( 'main_section' );   
-        }
+		// if( $active_tab == 'general') 
 
-        if( $active_tab == 'visual') 
-        {
-            do_settings_sections( 'visual_section' );   
-        }
+        // if( $active_tab == 'visual') 
 
-        if( $active_tab == 'capabilities') 
-        {
-            do_settings_sections( 'capabilities_section' );
-        }
+        // if( $active_tab == 'capabilities') 
 
-        if( $active_tab == 'billing') 
-        {
-            do_settings_sections( 'order_section' );
-        }
+        // if( $active_tab == 'billing') 
 
-        if( $active_tab == 'shipping') 
-        {
-            do_settings_sections( 'shipping_section' );
-            do_settings_sections( 'order_comments_section' );
-        }
+        // if( $active_tab == 'shipping') 
 
         // if( $active_tab == 'customernotes') 
-        // {
-        
-        // }
-        
 		?>
 		
 		<p class="submit">

@@ -8,3 +8,10 @@
 #variable_product_options .woocommerce_variation table td.data table.data_table td .wp-editor-wrap .mceToolbar {
     margin: 0;
 }
+
+.tab {
+	display: none;
+}
+.tab.active {
+	display: block;
+}

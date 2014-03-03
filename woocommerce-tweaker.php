@@ -74,8 +74,12 @@ class WooTweak2 {
 		
 		add_action('woocommerce_init', array($this, 'wt2_show_sorting_feild_before_products'));
 		
-		add_filter('single_add_to_cart_text', array($this,'wt2_custom_addtocart_button_text_func'));
-		add_filter('add_to_cart_text', array($this,'wt2_custom_addtocart_button_text_func'));
+		
+		// add_filter('woocommerce_product_single_add_to_cart_text', array($this,'wt2_custom_addtocart_button_text_func'));
+		add_filter('woocommerce_product_add_to_cart_text', array($this,'wt2_custom_addtocart_button_text_func'));
+		// add_filter('woocommerce_loop_add_to_cart_link', array($this,'wt2_custom_addtocart_button_text_func'), 10, 2);
+
+		// add_filter('add_to_cart_text', array($this,'wt2_custom_addtocart_button_text_func'));
 		
 		add_action('admin_notices', array($this,'wt2_admin_notice'));
 
@@ -235,6 +239,8 @@ class WooTweak2 {
 		add_settings_field('wt2_disable_dashbord_logo_menu', __('Disable logo menu in admin dashboard'), array($this,'wt2_disable_dashbord_logo_menu_generate_field'), 'visual_section', 'WooTweak2_main_section'); // id, title, cb func, page , section
 	    
 	    add_settings_field('wt2_custom_addtocart_button_text', __('Custom text for "Add to Cart" button (Single product)', 'WooTweak2'), array($this,'wt2_custom_addtocart_button_text_generate_field'), 'visual_section', 'WooTweak2_main_section'); // id, title, cb func, page , section
+	    
+	    add_settings_field('wt2_use_flexbox_layout', __('Use FlexBox layout enhancement', 'WooTweak2'), array($this,'wt2_use_flexbox_layout_generate_field'), 'visual_section', 'WooTweak2_main_section'); // id, title, cb func, page , section
 
 
 
@@ -384,6 +390,12 @@ class WooTweak2 {
 	{
 		$checked = ( 1 == $this->options['wt2_show_sort_before_products'] ) ? 'checked="checked"' : '' ;
 		echo '<input name="WooTweak2_options[wt2_show_sort_before_products]" type="checkbox" value="1" '.$checked.'>';
+	}
+
+	function wt2_use_flexbox_layout_generate_field()
+	{
+		$checked = ( 1 == $this->options['wt2_use_flexbox_layout'] ) ? 'checked="checked"' : '' ;
+		echo '<input name="WooTweak2_options[wt2_use_flexbox_layout]" type="checkbox" value="1" '.$checked.'>';
 	}
 	
     function wt2_custom_addtocart_button_text_generate_field()
@@ -841,7 +853,7 @@ class WooTweak2 {
 		$o = get_option('WooTweak2_options');
 		if ($o['wt2_custom_addtocart_button_text'])
 		{
-		    return __($o['wt2_custom_addtocart_button_text'], 'woocommerce');
+		    return $o['wt2_custom_addtocart_button_text'];
 		}
 		else
 		{
@@ -1218,8 +1230,16 @@ add_action('wp_enqueue_scripts', 'wt2_styles');
 
 function wt2_styles()
 {
-	wp_register_style('wootweak2', plugins_url('/css/woocommerce-tweaker.css', __FILE__) );
+	$o = get_option('WooTweak2_options');
+
+	wp_register_style('wootweak2', plugins_url('/css/woocommerce-tweaker.css', __FILE__), array('woocommerce-general') );
 	wp_enqueue_style('wootweak2');
+
+	if($o['wt2_use_flexbox_layout'])
+	{
+		wp_register_style('wootweak2flex', plugins_url('/css/woocommerce-tweaker-flexbox.css', __FILE__), array('woocommerce-general','wootweak2') );
+		wp_enqueue_style('wootweak2flex');
+	}
 }
 
 add_action('admin_enqueue_scripts', 'wt2_admin_styles');

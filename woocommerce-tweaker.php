@@ -996,7 +996,7 @@ class WooTweak2 {
 		{	
 			$price = '<del><span class="amount">';
 			
-			if( $def != '' && $def != 0 ) $price .= woocommerce_price($def);
+			if( $def != '' && $def != 0 && $def <= $max_price) $price .= woocommerce_price($def);
 			// else $price .= woocommerce_price($product->min_variation_price);
 			else $price .= woocommerce_price($min_price);
 
@@ -1005,19 +1005,24 @@ class WooTweak2 {
 
 			$price .= '<ins><span class="amount">';
 			
-			if( $def_sale != '' && $def_sale != 0 ) $price .= woocommerce_price($def_sale);
+			if( $def_sale != '' && $def_sale != 0 && $def_sale <= $max_sale_price) $price .= woocommerce_price($def_sale);
 			// else $price .= woocommerce_price($product->min_variation_price);
 			else $price .= woocommerce_price($min_sale_price);
 
+			$price .= '</span>–<span class="amount">';
+
+			if($min_sale_price < $max_sale_price) $price .= woocommerce_price($max_sale_price);
+			else $price .= woocommerce_price($max_price);
 			// $price .= '</span>–<span class="amount">' . woocommerce_price($product->max_variation_price) . '</span></ins>';
-			$price .= '</span>–<span class="amount">' . woocommerce_price($max_sale_price) . '</span></ins>';
+			
+			$price .= '</span></ins>';
 		}
 
 		if($o['wt2_variation_price_formating'] == 'fromto')
 		{
 			$price = '<del><span class="from">' . _x('From', 'min_price', 'woocommerce') . '</span> ';
 
-			if( $def != '' && $def != 0 ) $price .= woocommerce_price($def);
+			if( $def != '' && $def != 0 && $def <= $max_price) $price .= woocommerce_price($def);
 			// else $price .= woocommerce_price($product->min_variation_price);
 			else $price .= woocommerce_price($min_price);
 
@@ -1026,12 +1031,17 @@ class WooTweak2 {
 
 			$price .= '<ins><span class="from">' . _x('From', 'min_price', 'woocommerce') . '</span> ';
 
-			if( $def_sale != '' && $def_sale != 0 ) $price .= woocommerce_price($def_sale);
+			if( $def_sale != '' && $def_sale != 0 && $def_sale <= $max_sale_price) $price .= woocommerce_price($def_sale);
 			// else $price .= woocommerce_price($product->min_variation_price);
 			else $price .= woocommerce_price($min_sale_price);
 
+			$price .= ' <span class="from">' . _x('to', 'max_price', 'woocommerce') .   '</span> ';
+
 			// $price .= ' <span class="from">' . _x('to', 'max_price', 'woocommerce') .   '</span> ' . woocommerce_price($product->max_variation_price) . '</ins>';
-			$price .= ' <span class="from">' . _x('to', 'max_price', 'woocommerce') .   '</span> ' . woocommerce_price($max_sale_price) . '</ins>';
+			if($min_sale_price < $max_sale_price) $price .= woocommerce_price($max_sale_price);
+			else $price .= woocommerce_price($max_price);
+
+			$price .= '</ins>';
 		}
 
 		return $price;

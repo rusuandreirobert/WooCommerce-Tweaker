@@ -77,6 +77,8 @@ class WooTweak2 {
 		
 		// add_filter('woocommerce_product_single_add_to_cart_text', array($this,'wt2_custom_addtocart_button_text_func'));
 		add_filter('woocommerce_product_add_to_cart_text', array($this,'wt2_custom_addtocart_button_text_func'));
+		add_filter('woocommerce_product_single_add_to_cart_text', array($this,'wt2_custom_addtocart_button_text_func'));
+		
 		// add_filter('woocommerce_loop_add_to_cart_link', array($this,'wt2_custom_addtocart_button_text_func'), 10, 2);
 
 		// add_filter('add_to_cart_text', array($this,'wt2_custom_addtocart_button_text_func'));

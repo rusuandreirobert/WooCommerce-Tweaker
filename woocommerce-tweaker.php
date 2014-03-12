@@ -78,7 +78,7 @@ class WooTweak2 {
 		// add_filter('woocommerce_product_single_add_to_cart_text', array($this,'wt2_custom_addtocart_button_text_func'));
 		add_filter('woocommerce_product_add_to_cart_text', array($this,'wt2_custom_addtocart_button_text_func'));
 		add_filter('woocommerce_product_single_add_to_cart_text', array($this,'wt2_custom_addtocart_button_text_func'));
-		
+
 		// add_filter('woocommerce_loop_add_to_cart_link', array($this,'wt2_custom_addtocart_button_text_func'), 10, 2);
 
 		// add_filter('add_to_cart_text', array($this,'wt2_custom_addtocart_button_text_func'));
@@ -924,22 +924,28 @@ class WooTweak2 {
 	<?php
 	}
 
-	function wt2_variable_default_price_field( $loop )
+	function wt2_variable_default_price_field( $post_id )
 	{
+		$post_id = get_the_ID();
+		$pf = new WC_Product_Factory();
+		$product = $pf->get_product($post_id);
+		if($product->product_type == 'variable')
+		{
 		?>
 		<p class="form-field">
 			<label>Default variation price (<?php echo get_woocommerce_currency_symbol(); ?>)</label> 
 			<!-- <a class="tips" data-tip="Price that would be displayed in 'From:' label instead of the lowest one" href="#">[?]</a> -->
-			<input type="text" class="short" name="default_variation_price" id="default_variation_price" value="<?php echo get_post_meta(get_the_ID(), '_default_variation_price', true); ?>">
+			<input type="text" class="short" name="default_variation_price" id="default_variation_price" value="<?php echo get_post_meta($post_id, '_default_variation_price', true); ?>">
 			<img class="help_tip" data-tip="Price that would be displayed in 'From:' label instead of the lowest one. If you don't need it - leave blank or set to 0" src="<?php echo plugins_url(); ?>/woocommerce/assets/images/help.png" height="16" width="16" />
 		</p>
 		<p class="form-field">
 			<label>Default variation sale price (<?php echo get_woocommerce_currency_symbol(); ?>)</label> 
 			<!-- <a class="tips" data-tip="Price that would be displayed in 'From:' label instead of the lowest one" href="#">[?]</a> -->
-			<input type="text" class="short" name="default_variation_sale_price" id="default_variation_sale_price" value="<?php echo get_post_meta(get_the_ID(), '_default_variation_sale_price', true); ?>">
+			<input type="text" class="short" name="default_variation_sale_price" id="default_variation_sale_price" value="<?php echo get_post_meta($post_id, '_default_variation_sale_price', true); ?>">
 			<img class="help_tip" data-tip="Price that would be displayed on sales in 'From:' label instead of the lowest one. If you don't need it - leave blank or set to 0" src="<?php echo plugins_url(); ?>/woocommerce/assets/images/help.png" height="16" width="16" />
 		</p>	
 		<?php
+		}
 	}
 
 	function wt2_variable_default_price_field_update( $post_id )
@@ -1024,22 +1030,22 @@ class WooTweak2 {
 
 		if($o['wt2_variation_price_formating'] == 'fromto')
 		{
-			$price = '<del><span class="from">' . _x('From', 'min_price', 'woocommerce') . '</span> ';
+			$price = '<del><span class="from">' . _x('From', 'min_price', 'woocommerce') . ' </span> ';
 
 			if( $def != '' && $def != 0 && $def <= $max_price) $price .= woocommerce_price($def);
 			// else $price .= woocommerce_price($product->min_variation_price);
 			else $price .= woocommerce_price($min_price);
 
 			// $price .= ' <span class="from">' . _x('to', 'max_price', 'woocommerce') .   '</span> ' . woocommerce_price($product->max_variation_price) . '</del>';
-			$price .= ' <span class="from">' . _x('to', 'max_price', 'woocommerce') .   '</span> ' . woocommerce_price($max_price) . '</del>';
+			$price .= ' <span class="from">' . _x('to', 'max_price', 'woocommerce') .   ' </span> ' . woocommerce_price($max_price) . '</del>';
 
-			$price .= '<ins><span class="from">' . _x('From', 'min_price', 'woocommerce') . '</span> ';
+			$price .= '<ins><span class="from">' . _x('From', 'min_price', 'woocommerce') . ' </span> ';
 
 			if( $def_sale != '' && $def_sale != 0 && $def_sale <= $max_sale_price) $price .= woocommerce_price($def_sale);
 			// else $price .= woocommerce_price($product->min_variation_price);
 			else $price .= woocommerce_price($min_sale_price);
 
-			$price .= ' <span class="from">' . _x('to', 'max_price', 'woocommerce') .   '</span> ';
+			$price .= ' <span class="from">' . _x('to', 'max_price', 'woocommerce') .   ' </span> ';
 
 			// $price .= ' <span class="from">' . _x('to', 'max_price', 'woocommerce') .   '</span> ' . woocommerce_price($product->max_variation_price) . '</ins>';
 			if($min_sale_price < $max_sale_price) $price .= woocommerce_price($max_sale_price);
@@ -1111,13 +1117,13 @@ class WooTweak2 {
 
 		if($o['wt2_variation_price_formating'] == 'fromto')
 		{
-			$price = '<span class="from">' . _x('From', 'min_price', 'woocommerce') . '</span> ';
+			$price = '<span class="from">' . _x('From', 'min_price', 'woocommerce') . ' </span> ';
 
 			if( $def != '' && $def != 0 && $def <= $max_price) $price .= woocommerce_price($def);
 			// else $price .= woocommerce_price($product->min_variation_price);
 			else $price .= woocommerce_price($min_price);
 
-			$price .= ' <span class="from">' . _x('to', 'max_price', 'woocommerce') .   '</span> ';
+			$price .= ' <span class="from">' . _x('to', 'max_price', 'woocommerce') .   ' </span> ';
 
 			// $price .= ' <span class="from">' . _x('to', 'max_price', 'woocommerce') .   '</span> ' . woocommerce_price($product->max_variation_price) . '</ins>';
 			$price .= woocommerce_price($max_price);

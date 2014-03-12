@@ -952,8 +952,10 @@ class WooTweak2 {
 		}
 	}
 
-	function wt2_variable_default_sale_price_filter( $price, $product )
+	function wt2_variable_default_sale_price_filter( $price )
 	{
+		global $post, $woocommerce, $product;
+
 		$o = get_option('WooTweak2_options');
 
 		$id = get_the_ID();
@@ -1047,41 +1049,76 @@ class WooTweak2 {
 		return $price;
 	}
 
-	function wt2_variable_default_price_html_filter( $price, $product )
+	function wt2_variable_default_price_html_filter( $price )
 	{
+		global $post, $woocommerce, $product;
+		
 		$o = get_option('WooTweak2_options');
 
 		$id = get_the_ID();
 		$def = get_post_meta($id, '_default_variation_price', true);
-		
+		$def_sale = get_post_meta($id, '_default_variation_sale_price', true);
+
+		// $price = $product->get_variation_sale_price('min');
 		$price = '';
 
-		if ( $product->min_variation_price && $product->max_variation_price && $product->max_variation_price !== $product->min_variation_price)
-		{
-			
-			if($o['wt2_variation_price_formating'] == 'dash')
-			{	
-				$price = '<span class="amount">';
-				
-				if( $def != '' && $def != 0 ) $price .= woocommerce_price($def);
-				else $price .= woocommerce_price($product->min_variation_price);
+		$available_variations = $product->get_available_variations();
 
-				$price .= '</span>–<span class="amount">' . woocommerce_price($product->max_variation_price) . '</span>';
-			}
+		$min_price = 0;
+		$max_price = 0;
+		$min_sale_price = 0;
+		$max_sale_price = 0;
+		$counter = 0;
 
-			if($o['wt2_variation_price_formating'] == 'fromto')
-			{
-				$price = '<span class="from">' . _x('From', 'min_price', 'woocommerce') . '</span> ';
+		foreach($available_variations as $prod_variation) {
+		    $post_id = $prod_variation['variation_id'];
+		    $meta = get_post_meta($post_id);
 
-				if( $def != '' && $def != 0 ) $price .= woocommerce_price($def);
-				else $price .= woocommerce_price($product->min_variation_price);
+		    if($meta['_regular_price'][0] >= $max_price) $max_price = $meta['_regular_price'][0];
+		    if($meta['_sale_price'][0] >= $max_sale_price) $max_sale_price = $meta['_sale_price'][0];
 
-				$price .= ' <span class="from">' . _x('to', 'max_price', 'woocommerce') .   '</span> ' . woocommerce_price($product->max_variation_price);
-			}
+		    if($counter != 0)
+		    {
+		    	if($meta['_regular_price'][0] <= $min_price && $meta['_regular_price'][0] != 0) $min_price = $meta['_regular_price'][0];
+		    	if($meta['_sale_price'][0] <= $min_sale_price && $meta['_sale_price'][0] != 0) $min_sale_price = $meta['_sale_price'][0];
+		    	$counter++;
+		    }
+		    else
+		    {
+		    	$min_price = $meta['_regular_price'][0];
+		    	$min_sale_price = $meta['_sale_price'][0];
+		    	$counter++;
+		    }
 		}
-		else
+
+		if($o['wt2_variation_price_formating'] == 'dash')
+		{	
+			$price = '<span class="amount">';
+			
+			if( $def != '' && $def != 0 && $def <= $max_price) $price .= woocommerce_price($def);
+			// else $price .= woocommerce_price($product->min_variation_price);
+			else $price .= woocommerce_price($min_price);
+
+			$price .= '</span>–<span class="amount">';
+
+			$price .= woocommerce_price($max_price);
+			// $price .= '</span>–<span class="amount">' . woocommerce_price($product->max_variation_price) . '</span></ins>';
+			
+			$price .= '</span>';
+		}
+
+		if($o['wt2_variation_price_formating'] == 'fromto')
 		{
-			$price = woocommerce_price($product->get_price());
+			$price = '<span class="from">' . _x('From', 'min_price', 'woocommerce') . '</span> ';
+
+			if( $def != '' && $def != 0 && $def <= $max_price) $price .= woocommerce_price($def);
+			// else $price .= woocommerce_price($product->min_variation_price);
+			else $price .= woocommerce_price($min_price);
+
+			$price .= ' <span class="from">' . _x('to', 'max_price', 'woocommerce') .   '</span> ';
+
+			// $price .= ' <span class="from">' . _x('to', 'max_price', 'woocommerce') .   '</span> ' . woocommerce_price($product->max_variation_price) . '</ins>';
+			$price .= woocommerce_price($max_price);
 		}
 
 		return $price;

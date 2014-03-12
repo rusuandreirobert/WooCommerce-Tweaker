@@ -79,6 +79,8 @@ class WooTweak2 {
 		add_filter('woocommerce_product_add_to_cart_text', array($this,'wt2_custom_addtocart_button_text_func'));
 		add_filter('woocommerce_product_single_add_to_cart_text', array($this,'wt2_custom_addtocart_button_text_func'));
 
+		add_filter('woocommerce_is_sold_individually', array($this,'wt2_remove_quantity_if_downloadable'), 10 , 2);
+
 		// add_filter('woocommerce_loop_add_to_cart_link', array($this,'wt2_custom_addtocart_button_text_func'), 10, 2);
 
 		// add_filter('add_to_cart_text', array($this,'wt2_custom_addtocart_button_text_func'));
@@ -860,6 +862,15 @@ class WooTweak2 {
 		    return __('Add to cart', 'woocommerce');
 		}
     }
+
+    // Remove quantity if product is downloadable
+
+    function wt2_remove_quantity_if_downloadable($return, $product)
+    {
+    	$id = get_the_ID();
+    	$meta = get_post_meta($id, '_downloadable', true);
+    	if($meta == 'yes') return true;
+    }
     
     // Disable logo menu in admin dashboard
 
@@ -1030,28 +1041,32 @@ class WooTweak2 {
 
 		if($o['wt2_variation_price_formating'] == 'fromto')
 		{
-			$price = '<del><span class="from">' . _x('From', 'min_price', 'woocommerce') . ' </span> ';
+			$price = '<del><span class="from">' . _x('From', 'min_price', 'woocommerce') . ' ';
 
 			if( $def != '' && $def != 0 && $def <= $max_price) $price .= woocommerce_price($def);
 			// else $price .= woocommerce_price($product->min_variation_price);
 			else $price .= woocommerce_price($min_price);
 
-			// $price .= ' <span class="from">' . _x('to', 'max_price', 'woocommerce') .   '</span> ' . woocommerce_price($product->max_variation_price) . '</del>';
-			$price .= ' <span class="from">' . _x('to', 'max_price', 'woocommerce') .   ' </span> ' . woocommerce_price($max_price) . '</del>';
+			$price .= '</span>';
 
-			$price .= '<ins><span class="from">' . _x('From', 'min_price', 'woocommerce') . ' </span> ';
+			// $price .= ' <span class="from">' . _x('to', 'max_price', 'woocommerce') .   '</span> ' . woocommerce_price($product->max_variation_price) . '</del>';
+			$price .= ' <span class="to">' . _x('to', 'max_price', 'woocommerce') . ' ' . woocommerce_price($max_price) . '</span></del>';
+
+			$price .= '<ins><span class="from">' . _x('From', 'min_price', 'woocommerce') . ' ';
 
 			if( $def_sale != '' && $def_sale != 0 && $def_sale <= $max_sale_price) $price .= woocommerce_price($def_sale);
 			// else $price .= woocommerce_price($product->min_variation_price);
 			else $price .= woocommerce_price($min_sale_price);
 
-			$price .= ' <span class="from">' . _x('to', 'max_price', 'woocommerce') .   ' </span> ';
+			$price .= '</span>'; 
+
+			$price .= ' <span class="to">' . _x('to', 'max_price', 'woocommerce') . ' ';
 
 			// $price .= ' <span class="from">' . _x('to', 'max_price', 'woocommerce') .   '</span> ' . woocommerce_price($product->max_variation_price) . '</ins>';
 			if($min_sale_price < $max_sale_price) $price .= woocommerce_price($max_sale_price);
 			else $price .= woocommerce_price($max_price);
 
-			$price .= '</ins>';
+			$price .= '</span></ins>';
 		}
 
 		return $price;
@@ -1117,16 +1132,20 @@ class WooTweak2 {
 
 		if($o['wt2_variation_price_formating'] == 'fromto')
 		{
-			$price = '<span class="from">' . _x('From', 'min_price', 'woocommerce') . ' </span> ';
+			$price = '<span class="from">' . _x('From', 'min_price', 'woocommerce') . ' ';
 
 			if( $def != '' && $def != 0 && $def <= $max_price) $price .= woocommerce_price($def);
 			// else $price .= woocommerce_price($product->min_variation_price);
 			else $price .= woocommerce_price($min_price);
 
-			$price .= ' <span class="from">' . _x('to', 'max_price', 'woocommerce') .   ' </span> ';
+			$price .= '</span>';
+
+			$price .= ' <span class="to">' . _x('to', 'max_price', 'woocommerce') . ' ';
 
 			// $price .= ' <span class="from">' . _x('to', 'max_price', 'woocommerce') .   '</span> ' . woocommerce_price($product->max_variation_price) . '</ins>';
 			$price .= woocommerce_price($max_price);
+
+			$price .= '</span>';
 		}
 
 		return $price;

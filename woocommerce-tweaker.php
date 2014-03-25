@@ -1276,9 +1276,11 @@ class WooTweak2 {
     
     function wt2_variations_tab($array)
     {
+    	global $post, $woocommerce, $product;
+
 		$o = get_option('WooTweak2_options');
 	
-		if($o['wt2_variations_tab_on_product_page'])
+		if($o['wt2_variations_tab_on_product_page'] && $product->product_type == 'variable')
 		{
 			$array['variation_description'] = array(
 				'title' => __('Variation', 'woocommerce').' ('.__('Description', 'woocommerce').')',

@@ -50,9 +50,9 @@ class WooTweak2 {
 
 		add_action('wp_head', array($this, 'wt2_frontend_enhancement'));
 
-		add_filter( 'woocommerce_checkout_fields' , array($this, 'wt2_override_checkout_fields'));
+		add_filter('woocommerce_checkout_fields' , array($this, 'wt2_override_checkout_fields'));
 		
-		add_action( 'woocommerce_before_checkout_form', array($this, 'wt2_checkout_form_width_function'));
+		add_action('woocommerce_before_checkout_form', array($this, 'wt2_checkout_form_width_function'));
 		
 		add_action('woocommerce_after_single_product_summary', array($this, 'wt2_remove_tabs_in_product_details'), 1);
 		add_action('woocommerce_after_single_product_summary', array($this, 'wt2_remove_panels_in_product_details'), 2);
@@ -89,7 +89,7 @@ class WooTweak2 {
 
 		add_action('plugins_loaded', array($this, 'wt2_translate'));
 
-		add_action( 'wp_before_admin_bar_render', array($this, 'wt2_remove_admin_bar_links') );
+		add_action('wp_before_admin_bar_render', array($this, 'wt2_remove_admin_bar_links') );
 
 		add_action('get_header',array($this, 'wt2_remove_woo_commerce_generator_tag'));
 
@@ -99,17 +99,17 @@ class WooTweak2 {
 		}
 
 	    // Fields
-		add_action( 'woocommerce_product_after_variable_attributes', array($this, 'wt2_variable_fields'), 10, 2 );
+		add_action('woocommerce_product_after_variable_attributes', array($this, 'wt2_variable_fields'), 10, 2 );
 		
-		add_action( 'woocommerce_product_options_sku', array($this, 'wt2_variable_default_price_field'), 10, 2 );
+		add_action('woocommerce_product_options_sku', array($this, 'wt2_variable_default_price_field'), 10, 2 );
 
 		// Some additional JS to add fields if needed for new variations
 		// add_action( 'woocommerce_product_after_variable_attributes_js', array($this, 'wt2_variable_fields_js') );
 
 		// Save variation
-		add_action( 'woocommerce_process_product_meta_variable', array($this, 'wt2_variable_fields_process'), 10, 1 );
+		add_action('woocommerce_process_product_meta_variable', array($this, 'wt2_variable_fields_process'), 10, 1 );
 		
-		add_action( 'woocommerce_process_product_meta_variable', array($this, 'wt2_variable_default_price_field_update'), 10, 1 );
+		add_action('woocommerce_process_product_meta_variable', array($this, 'wt2_variable_default_price_field_update'), 10, 1 );
     }
 
     function wt2_init()
@@ -171,6 +171,7 @@ class WooTweak2 {
         <a href="<?php echo $admin_link; ?>&tab=capabilities" class="nav-tab <?php if($active_tab == 'capabilities') echo 'nav-tab-active'; ?>"><?php echo __('Capabilities', 'woocommerce'); ?></a>
         <a href="<?php echo $admin_link; ?>&tab=billing" class="nav-tab <?php if($active_tab == 'billing') echo 'nav-tab-active'; ?>"><?php echo __('Checkout Page', 'woocommerce').' - '.__('Billing', 'woocommerce'); ?></a>
         <a href="<?php echo $admin_link; ?>&tab=shipping" class="nav-tab <?php if($active_tab == 'shipping') echo 'nav-tab-active'; ?>"><?php echo __('Checkout Page', 'woocommerce').' - '.__('Shipping', 'woocommerce'); ?></a>
+        <!-- <a href="<?php echo $admin_link; ?>&tab=devhelpers" class="nav-tab <?php if($active_tab == 'devhelpers') echo 'nav-tab-active'; ?>"><?php echo __('Dev Helpers', 'woocommerce'); ?></a> -->
         <!-- <a href="<?php echo $admin_link; ?>&tab=customernotes" class="nav-tab <?php if($active_tab == 'customernotes') echo 'nav-tab-active'; ?>"><?php echo __('Checkout Page', 'woocommerce').' - '.__('Customer Notes', 'woocommerce'); ?></a> -->
     	</h2>
 		<form method="post" action="options.php" enctype="multipart/form-data">
@@ -1334,6 +1335,114 @@ class WooTweak2 {
 	    	}
 		}
     }
+
+    // Dev Helpers *************************************************************************************************************************
+
+    function add_levels_to_terms()
+    {
+    	$args = array(
+				'hide_empty'    => false
+			);
+	    
+	    $allterms =  get_terms( 'product_cat', $args );
+	    
+	    foreach( $allterms as $term )
+		{
+			if($term->parent == 0)
+			{
+				update_post_meta($term->term_id, '_level', 0);
+			}
+			else
+			{
+				$level = self::walk($term, 0);
+				update_post_meta($term->term_id, '_level', $level);
+			}
+		}
+    }
+
+
+    function walk($term, $level)
+    {
+    	$term = get_post_meta($term->parent);
+    	if($term->parent == 0)
+    	{
+    		$level++;
+    		return $level;
+    	}
+    	else
+    	{
+    		$level++;
+    		$this->walk($term, $level);
+    	}
+    }
+
+
+    function add_all_terms_to_options_db()
+    {
+		$o = get_option('WooTweak2_options');
+
+		$args = array(
+				'hide_empty'    => false
+			);
+	    
+	    $allterms =  get_terms( 'product_cat', $args );
+
+	    $largeterms = array();
+
+	    foreach( $allterms as $term )
+		{
+			$largeterms[] = $term;
+		}
+
+		$o['wt2_largeterms_slugs'] = $largeterms;
+		
+		update_option('WooTweak2_options', $o);
+    }
+
+
+    function load_terms_from_wp_db($taxonomy)
+    {
+	    global $wpdb;
+
+	    $query = 'SELECT DISTINCT 
+                    t.term_id, t.name, t.slug 
+                FROM
+                    wp_terms t 
+                INNER JOIN 
+                    wp_term_taxonomy tax 
+                ON 
+                	`tax`.term_id = `t`.term_id
+                WHERE 
+                    ( `tax`.taxonomy = \'' . $taxonomy . '\')';
+
+	    $result =  $wpdb->get_results($query , ARRAY_A);
+
+	    return $result;                 
+	}
+
+	function load_woo_terms_from_wp_db($taxonomy)
+    {
+	    global $wpdb;
+
+	    $query = 'SELECT DISTINCT 
+                    t.term_id, t.name, t.slug 
+                FROM
+                    wp_terms t 
+                INNER JOIN 
+                    wp_term_taxonomy tax 
+                ON 
+                	`tax`.term_id = `t`.term_id
+                INNER JOIN
+                    wp_woocommerce_termmeta woo
+                ON
+                    `t`.term_id = `woo`.woocommerce_term_id
+                WHERE 
+                    ( `tax`.taxonomy = \'' . $taxonomy . '\')';
+
+	    $result =  $wpdb->get_results($query , ARRAY_A);
+
+	    return $result;                 
+	}
 }
 
     

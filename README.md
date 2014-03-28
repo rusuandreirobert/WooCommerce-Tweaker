@@ -2,6 +2,9 @@
 
 Plugin that provides some additional options and tweaks for WooCommerce Wordpress plugin which has been originally developed by WooThemes.
 
+Update 1.1.6
+* Automatic updater *test version* (from now plugin will update just as native Wordpress repository plugins do)
+ 
 Update 1.1.5
 * Settings menu update
 * "Flexbox layout" for better visual elements alignment 

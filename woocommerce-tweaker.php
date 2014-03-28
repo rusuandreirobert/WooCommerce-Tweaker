@@ -5,7 +5,7 @@ Plugin URI: https://github.com/darkdelphin/WooCommerce-Tweaker
 Description: Plugin that provides some additional options and tweaks for WooCommerce.
 Author: Pavel Burov (Dark Delphin)
 Author URI: http://pavelburov.com
-Version: 1.1.6
+Version: 1.1.7
 */
 
 require_once( 'updater/github.php' );
@@ -107,7 +107,7 @@ class WooTweak2 {
 		add_action('woocommerce_product_after_variable_attributes', array($this, 'wt2_variable_fields'), 10, 2 );
 		
 		add_action('woocommerce_product_options_sku', array($this, 'wt2_variable_default_price_field'), 10, 2 );
-
+		
 		// Some additional JS to add fields if needed for new variations
 		// add_action( 'woocommerce_product_after_variable_attributes_js', array($this, 'wt2_variable_fields_js') );
 
@@ -972,6 +972,13 @@ class WooTweak2 {
 			<!-- <a class="tips" data-tip="Price that would be displayed in 'From:' label instead of the lowest one" href="#">[?]</a> -->
 			<input type="text" class="short" name="default_variation_sale_price" id="default_variation_sale_price" value="<?php echo get_post_meta($post_id, '_default_variation_sale_price', true); ?>">
 			<img class="help_tip" data-tip="Price that would be displayed on sales in 'From:' label instead of the lowest one. If you don't need it - leave blank or set to 0" src="<?php echo plugins_url(); ?>/woocommerce/assets/images/help.png" height="16" width="16" />
+		</p>
+
+		<p class="form-field">
+			<label>Variation tab title</label> 
+			<!-- <a class="tips" data-tip="Price that would be displayed in 'From:' label instead of the lowest one" href="#">[?]</a> -->
+			<input type="text" class="short" name="variation_tab_title" id="variation_tab_title" value="<?php echo get_post_meta($post_id, '_variation_tab_title', true); ?>">
+			<img class="help_tip" data-tip="Custom title for variation description tab on product page" src="<?php echo plugins_url(); ?>/woocommerce/assets/images/help.png" height="16" width="16" />
 		</p>	
 		<?php
 		}
@@ -986,6 +993,10 @@ class WooTweak2 {
 		if (isset( $_POST['default_variation_sale_price'] ) ) 
 		{
 			update_post_meta( $post_id, '_default_variation_sale_price', sanitize_text_field( $_POST['default_variation_sale_price'] ) );
+		}
+		if (isset( $_POST['variation_tab_title'] ) ) 
+		{
+			update_post_meta( $post_id, '_variation_tab_title', sanitize_text_field( $_POST['variation_tab_title'] ) );
 		}
 	}
 
@@ -1296,14 +1307,18 @@ class WooTweak2 {
     	global $post, $woocommerce, $product;
 
 		$o = get_option('WooTweak2_options');
-	
+
+		$title = get_post_meta($product->id, '_variation_tab_title', true);
+
 		if($o['wt2_variations_tab_on_product_page'] && $product->product_type == 'variable')
 		{
 			$array['variation_description'] = array(
-				'title' => __('Variation', 'woocommerce').' ('.__('Description', 'woocommerce').')',
+				//'title' => __('Variation', 'woocommerce').' ('.__('Description', 'woocommerce').')',
 				'priority' => 30,
 				'callback' => array('WooTweak2', 'wt2_variations_panel')
 				);
+			if($title && $title != '') $array['variation_description']['title'] = $title;
+			else $array['variation_description']['title'] = __('Variation', 'woocommerce').' ('.__('Description', 'woocommerce').')';
 		}
 		return $array;
     }

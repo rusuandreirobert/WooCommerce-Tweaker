@@ -8,6 +8,8 @@ Author URI: http://pavelburov.com
 Version: 1.1.5
 */
 
+require_once( 'updater/github.php' );
+
 class WooTweak2 {
      
     public $options;
@@ -113,6 +115,10 @@ class WooTweak2 {
 		add_action('woocommerce_process_product_meta_variable', array($this, 'wt2_variable_fields_process'), 10, 1 );
 		
 		add_action('woocommerce_process_product_meta_variable', array($this, 'wt2_variable_default_price_field_update'), 10, 1 );
+
+		if ( is_admin() ) {
+		    new GitHubPluginUpdater( __FILE__, 'darkdelphin', "WooCommerce-Tweaker" );
+		}
     }
 
     function wt2_init()

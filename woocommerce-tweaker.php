@@ -65,8 +65,11 @@ class WooTweak2 {
 		add_filter('woocommerce_product_tabs', array($this, 'wt2_variations_tab'));
 		
 		// add_filter('woocommerce_get_variation_price', array($this, 'wt2_variable_default_price_filter'), 10 , 2);
-		add_filter('woocommerce_variable_price_html', array($this, 'wt2_variable_default_price_html_filter'), 10 , 2);
-		add_filter('woocommerce_variable_sale_price_html', array($this, 'wt2_variable_default_sale_price_filter'), 10 , 2);
+		if($o['wt2_apply_price_filters'])
+		{
+			add_filter('woocommerce_variable_price_html', array($this, 'wt2_variable_default_price_html_filter'), 10 , 2);
+			add_filter('woocommerce_variable_sale_price_html', array($this, 'wt2_variable_default_sale_price_filter'), 10 , 2);
+		}
 
 		add_action('woocommerce_init', array($this, 'wt2_tweak_shop_manager_role'));
 		add_action('woocommerce_init', array($this, 'wt2_use_wp_pagenavi_func'));
@@ -253,6 +256,8 @@ class WooTweak2 {
 	    
 	    add_settings_field('wt2_variations_tab_on_product_page', __('Add variations tab on product page', 'WooTweak2'), array($this,'wt2_variations_tab_on_product_page_generate_field'), 'main_section', 'WooTweak2_main_section'); // id, title, cb func, page , section
 	    
+	    add_settings_field('wt2_apply_price_filters', __('Use the following format for prices', 'WooTweak2'), array($this,'wt2_apply_price_filters_generate_field'), 'main_section', 'WooTweak2_main_section'); // id, title, cb func, page , section
+	    
 	    add_settings_field('wt2_variation_price_formating', __('Variation price format', 'WooTweak2'), array($this,'wt2_variation_price_formating_generate_field'), 'main_section', 'WooTweak2_main_section'); // id, title, cb func, page , section
 	    
 	    add_settings_field('wt2_use_wysiwyg_for_variation_description', __('Use WYSIWYG editor for variation description', 'WooTweak2'), array($this,'wt2_use_wysiwyg_for_variation_description_generate_field'), 'main_section', 'WooTweak2_main_section'); // id, title, cb func, page , section
@@ -369,6 +374,12 @@ class WooTweak2 {
     {
     	$checked = ( 1 == $this->options['wt2_use_wysiwyg_for_variation_description'] ) ? 'checked="checked"' : '' ;
     	echo '<input name="WooTweak2_options[wt2_use_wysiwyg_for_variation_description]" type="checkbox" value="1" '.$checked.'>';
+    }
+
+    function wt2_apply_price_filters_generate_field()
+    {
+    	$checked = ( 1 == $this->options['wt2_apply_price_filters'] ) ? 'checked="checked"' : '' ;
+    	echo '<input name="WooTweak2_options[wt2_apply_price_filters]" type="checkbox" value="1" '.$checked.'>';
     }
 
     function wt2_variation_price_formating_generate_field()

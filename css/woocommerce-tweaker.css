@@ -1,12 +1,3 @@
-.product_description {
-    float: right;
-    width: 48%;
-    margin-top: 10px;
-}
-/*#wt2_variation_meta {
-    display: none;
-}*/
-
 /*sidebar button fix*/
 a.button, button.button, input.button, #review_form #submit {
     display: inline-block;

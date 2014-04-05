@@ -2,6 +2,16 @@
 
 Plugin that provides some additional options and tweaks for WooCommerce Wordpress plugin which has been originally developed by WooThemes.
 
+Update 1.1.8
+* "Disable tabs on product page" feature is completely re-build
+* "Float description" feature is removed
+* "Hide attributes tab on product page" feature is removed
+* CSS front-end tweaks are completely removed to prevent interference with existing styling
+* Code cleanup
+
+Update 1.1.7
+* Custom variation tab title feature
+
 Update 1.1.6
 * Automatic updater *test version* (from now plugin will update just as native Wordpress repository plugins do)
  

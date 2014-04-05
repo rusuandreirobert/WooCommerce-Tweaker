@@ -1,5 +1,13 @@
 jQuery(document).ready(function($) {
 
+	// Disable tabs on product page
+	// if(typeof disable_tabs_on_product_page != 'undefined' && disable_tabs_on_product_page == true)
+	// {
+	// 	$( '.woocommerce-tabs .panel' ).show();
+
+	// 	$( '.woocommerce-tabs ul.tabs' ).hide();
+	// }
+
 	// Product category widget enhancement
 	if(typeof product_category_widget_enhancement != 'undefined' && product_category_widget_enhancement == true)
 	{
@@ -14,7 +22,8 @@ jQuery(document).ready(function($) {
 
 	// Default variation description
 
-	var all_descriptions = $('#tab-variation_description .variation').hide();
+	if(typeof disable_tabs_on_product_page != 'undefined' && disable_tabs_on_product_page == true) var all_descriptions = $('#panel-variation_description .variation').hide();
+	else var all_descriptions = $('#tab-variation_description .variation').hide();
 
 	var variation = $('input[name=variation_id]').attr('value');
 	

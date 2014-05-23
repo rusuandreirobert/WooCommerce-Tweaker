@@ -2,6 +2,10 @@
 
 Plugin that provides some additional options and tweaks for WooCommerce Wordpress plugin which has been originally developed by WooThemes.
 
+Update 1.1.9
+Import/Export plugin settings
+Flexbox layout fix
+
 Update 1.1.8
 * "Disable tabs on product page" feature is completely re-build
 * "Float description" feature is removed

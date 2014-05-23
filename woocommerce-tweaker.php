@@ -5,7 +5,7 @@ Plugin URI: https://github.com/darkdelphin/WooCommerce-Tweaker
 Description: Plugin that provides some additional options and tweaks for WooCommerce.
 Author: Pavel Burov (Dark Delphin)
 Author URI: http://pavelburov.com
-Version: 1.1.8
+Version: 1.1.9
 */
 
 require_once( 'updater/github.php' );

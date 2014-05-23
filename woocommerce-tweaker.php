@@ -9,6 +9,7 @@ Version: 1.1.8
 */
 
 require_once( 'updater/github.php' );
+require_once( 'import-export/import-export.php' );
 
 class WooTweak2 {
      
@@ -116,6 +117,10 @@ class WooTweak2 {
 		if ( is_admin() ) {
 		    new GitHubPluginUpdater( __FILE__, 'darkdelphin', "WooCommerce-Tweaker" );
 		}
+
+		if ( is_admin() ) {
+		    new ImportExportEnhancement( 'WooTweak2_options', 'wt2' );
+		}
     }
 
     function wt2_init()
@@ -169,57 +174,62 @@ class WooTweak2 {
 	        $active_tab = $_GET['tab'];
 	    }
 		?>
-		<div class="icon32" style="background-image: url(<?php echo plugins_url(); ?>/woocommerce/assets/images/icons/woocommerce-icons.png)!important; background-position: -359px -6px;"></div>
-		<!-- <h2><?php echo __('Settings', 'woocommerce'); ?></h2> -->
+
 		<h2 class="nav-tab-wrapper">
         <a href="<?php echo $admin_link; ?>&tab=general" class="nav-tab <?php if($active_tab == 'general') echo 'nav-tab-active'; ?>"><?php echo __('General Options', 'woocommerce'); ?></a>
         <a href="<?php echo $admin_link; ?>&tab=visual" class="nav-tab <?php if($active_tab == 'visual') echo 'nav-tab-active'; ?>"><?php echo __('Visual tweaks', 'woocommerce'); ?></a>
         <a href="<?php echo $admin_link; ?>&tab=capabilities" class="nav-tab <?php if($active_tab == 'capabilities') echo 'nav-tab-active'; ?>"><?php echo __('Capabilities', 'woocommerce'); ?></a>
         <a href="<?php echo $admin_link; ?>&tab=billing" class="nav-tab <?php if($active_tab == 'billing') echo 'nav-tab-active'; ?>"><?php echo __('Checkout Page', 'woocommerce').' - '.__('Billing', 'woocommerce'); ?></a>
         <a href="<?php echo $admin_link; ?>&tab=shipping" class="nav-tab <?php if($active_tab == 'shipping') echo 'nav-tab-active'; ?>"><?php echo __('Checkout Page', 'woocommerce').' - '.__('Shipping', 'woocommerce'); ?></a>
+        <a href="<?php echo $admin_link; ?>&tab=importexport" class="nav-tab <?php if($active_tab == 'importexport') echo 'nav-tab-active'; ?>"><?php echo __('Import/export', 'woocommerce'); ?></a>
         <!-- <a href="<?php echo $admin_link; ?>&tab=devhelpers" class="nav-tab <?php if($active_tab == 'devhelpers') echo 'nav-tab-active'; ?>"><?php echo __('Dev Helpers', 'woocommerce'); ?></a> -->
-        <!-- <a href="<?php echo $admin_link; ?>&tab=customernotes" class="nav-tab <?php if($active_tab == 'customernotes') echo 'nav-tab-active'; ?>"><?php echo __('Checkout Page', 'woocommerce').' - '.__('Customer Notes', 'woocommerce'); ?></a> -->
     	</h2>
+
 		<form method="post" action="options.php" enctype="multipart/form-data">
+		
 		<?php settings_fields('WooTweak2_plugin_options_group'); ?>
 		<?php //do_settings_sections(__FILE__); ?>
 		
 		<div class="tab general <?php if( $active_tab == 'general') echo 'active'; ?>">
 			<?php do_settings_sections( 'main_section' ); ?>
+			<p class="submit">
+			    <input type="submit" name="submit" value="<?php echo __('Save changes', 'woocommerce'); ?>" class="button-primary"  />
+			</p>
 		</div>
 		<div class="tab visual <?php if( $active_tab == 'visual') echo 'active'; ?>">
 			<?php do_settings_sections( 'visual_section' ); ?>
+			<p class="submit">
+			    <input type="submit" name="submit" value="<?php echo __('Save changes', 'woocommerce'); ?>" class="button-primary"  />
+			</p>
 		</div>
 		<div class="tab capabilities <?php if( $active_tab == 'capabilities') echo 'active'; ?>">
 			<?php do_settings_sections( 'capabilities_section' ); ?>
+			<p class="submit">
+			    <input type="submit" name="submit" value="<?php echo __('Save changes', 'woocommerce'); ?>" class="button-primary"  />
+			</p>
 		</div>
 		<div class="tab billing <?php if( $active_tab == 'billing') echo 'active'; ?>">
 			<?php do_settings_sections( 'order_section' ); ?>
+			<p class="submit">
+			    <input type="submit" name="submit" value="<?php echo __('Save changes', 'woocommerce'); ?>" class="button-primary"  />
+			</p>
 		</div>
 		<div class="tab shipping <?php if( $active_tab == 'shipping') echo 'active'; ?>">
 			<?php
 				do_settings_sections( 'shipping_section' );
             	do_settings_sections( 'order_comments_section' );
 			?>
+			<p class="submit">
+			    <input type="submit" name="submit" value="<?php echo __('Save changes', 'woocommerce'); ?>" class="button-primary"  />
+			</p>
 		</div>
-		<?php
-		// if( $active_tab == 'general') 
 
-        // if( $active_tab == 'visual') 
-
-        // if( $active_tab == 'capabilities') 
-
-        // if( $active_tab == 'billing') 
-
-        // if( $active_tab == 'shipping') 
-
-        // if( $active_tab == 'customernotes') 
-		?>
-		
-		<p class="submit">
-		    <input type="submit" name="submit" value="<?php echo __('Save changes', 'woocommerce'); ?>" class="button-primary"  />
-		</p>
 		</form>
+
+		<div class="tab shipping <?php if( $active_tab == 'importexport') echo 'active'; ?>">
+			<?php ImportExportEnhancement::import_export_plugin_buttons(); ?>
+		</div>
+	    
 	    </div>
 	    <?php
     }
@@ -1301,7 +1311,7 @@ function wt2_styles()
 
 	if($o['wt2_use_flexbox_layout'])
 	{
-		wp_register_style('wootweak2flex', plugins_url('/css/woocommerce-tweaker-flexbox.css', __FILE__), array('woocommerce-general','wootweak2') );
+		wp_register_style('wootweak2flex', plugins_url('/css/woocommerce-tweaker-flexbox.css', __FILE__), array('woocommerce-general') );
 		wp_enqueue_style('wootweak2flex');
 	}
 }

@@ -121,6 +121,10 @@ class WooTweak2 {
 		if ( is_admin() ) {
 		    new ImportExportEnhancement( 'WooTweak2_options', 'wt2' );
 		}
+
+		add_action( 'admin_init', array($this, 'devhelpers_page_process') );
+
+		remove_action( 'admin_notices', 'woothemes_updater_notice' );
     }
 
     function wt2_init()
@@ -182,7 +186,7 @@ class WooTweak2 {
         <a href="<?php echo $admin_link; ?>&tab=billing" class="nav-tab <?php if($active_tab == 'billing') echo 'nav-tab-active'; ?>"><?php echo __('Checkout Page', 'woocommerce').' - '.__('Billing', 'woocommerce'); ?></a>
         <a href="<?php echo $admin_link; ?>&tab=shipping" class="nav-tab <?php if($active_tab == 'shipping') echo 'nav-tab-active'; ?>"><?php echo __('Checkout Page', 'woocommerce').' - '.__('Shipping', 'woocommerce'); ?></a>
         <a href="<?php echo $admin_link; ?>&tab=importexport" class="nav-tab <?php if($active_tab == 'importexport') echo 'nav-tab-active'; ?>"><?php echo __('Import/export', 'woocommerce'); ?></a>
-        <!-- <a href="<?php echo $admin_link; ?>&tab=devhelpers" class="nav-tab <?php if($active_tab == 'devhelpers') echo 'nav-tab-active'; ?>"><?php echo __('Dev Helpers', 'woocommerce'); ?></a> -->
+        <a href="<?php echo $admin_link; ?>&tab=devhelpers" class="nav-tab <?php if($active_tab == 'devhelpers') echo 'nav-tab-active'; ?>"><?php echo __('Developer', 'woocommerce'); ?></a>
     	</h2>
 
 		<form method="post" action="options.php" enctype="multipart/form-data">
@@ -228,6 +232,10 @@ class WooTweak2 {
 
 		<div class="tab shipping <?php if( $active_tab == 'importexport') echo 'active'; ?>">
 			<?php ImportExportEnhancement::import_export_plugin_buttons(); ?>
+		</div>
+
+		<div class="tab devhelpers <?php if( $active_tab == 'devhelpers') echo 'active'; ?>">
+			<?php self::devhelpers_page();//ImportExportEnhancement::import_export_plugin_buttons(); ?>
 		</div>
 	    
 	    </div>
@@ -1192,6 +1200,63 @@ class WooTweak2 {
 
     // Dev Helpers *************************************************************************************************************************
 
+    function devhelpers_page()
+    {
+    	?>
+    	<h3>Product categories Levels</h3>
+    	<p>Add "_level" metadata to each product category representing its depth of nesting in categories hierarchy.</p>
+    	<p>For top level parent categories count starts with 0.</p>
+    	<form method="post">
+			<p>
+				<input type="hidden" name="add_levels_to_terms" value="add_levels" />
+				<?php wp_nonce_field( 'add_levels_to_terms_nonce', 'add_levels_to_terms_nonce' ); ?>
+				<input type="submit" name="submit" value="<?php echo __('Add levels', 'woocommerce'); ?>" class="button-primary"  />
+				<input type="submit" name="show_current_levels" value="<?php echo __('Show current levels', 'woocommerce'); ?>" class="button"  />
+			</p>
+		</form>
+    	<?php
+    	
+
+    	if( !empty( $_POST['show_current_levels'] ) )
+    	{
+    		$terms = get_terms( 'product_cat' );
+    		?>
+    		<table class="wc_status_table widefat">
+    			<thead>
+    				<th>Name</th>
+    				<th>Slug</th>
+    				<th>Level</th>
+    			</thead>
+    			<tbody>
+    		<?php
+	    	foreach($terms as $term)
+	    	{
+	    		?>
+	    		<tr>
+	    			<td><?php echo $term->name; ?></td>
+	    			<td><?php echo $term->slug; ?></td>
+	    			<td><?php echo get_post_meta( $term->term_id, '_level', true ); ?></td>
+	    		</tr>
+	    		<?php
+	    	}
+	    	?>
+    			</tbody>
+    		</table>
+    		<?php
+    	}
+    }
+
+    function devhelpers_page_process()
+    {
+    	if( empty( $_POST['add_levels_to_terms'] ) || 'add_levels' != $_POST['add_levels_to_terms'] )
+			return;
+
+		if( ! wp_verify_nonce( $_POST['add_levels_to_terms_nonce'], 'add_levels_to_terms_nonce' ) )
+			return;
+
+		self::add_levels_to_terms();
+    }
+
     function add_levels_to_terms()
     {
     	$args = array(
@@ -1213,7 +1278,6 @@ class WooTweak2 {
 			}
 		}
     }
-
 
     function walk($term, $level)
     {

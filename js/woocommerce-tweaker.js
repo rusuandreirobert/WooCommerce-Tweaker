@@ -12,12 +12,24 @@ jQuery(document).ready(function($) {
 	if(typeof product_category_widget_enhancement != 'undefined' && product_category_widget_enhancement == true)
 	{
 		var lists = $('.product-categories .children');
-			lists.hide();
-			lists.prev().bind('click', function(evt){
-				evt.preventDefault();
-				$(this).toggleClass('active');
-				$(this).next('.children').slideToggle().toggleClass('opened');
-			});
+			lists.hide(); 
+			if( lists.prev().prop('tagName') == 'SPAN') 
+			{
+				var link = lists.prev().prev();
+			
+				link.on('click', function(event){
+					event.preventDefault();
+					$(this).toggleClass('active').next().next('.children').slideToggle().toggleClass('opened');
+				});
+			}
+			else
+			{
+				var link = lists.prev();
+				link.on('click', function(event){
+					event.preventDefault();
+					$(this).toggleClass('active').next('.children').slideToggle().toggleClass('opened');
+				});
+			}
 	}
 
 	// Default variation description

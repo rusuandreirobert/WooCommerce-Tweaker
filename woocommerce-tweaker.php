@@ -183,8 +183,8 @@ class WooTweak2 {
         <a href="<?php echo $admin_link; ?>&tab=general" class="nav-tab <?php if($active_tab == 'general') echo 'nav-tab-active'; ?>"><?php echo __('General Options', 'woocommerce'); ?></a>
         <a href="<?php echo $admin_link; ?>&tab=visual" class="nav-tab <?php if($active_tab == 'visual') echo 'nav-tab-active'; ?>"><?php echo __('Visual tweaks', 'woocommerce'); ?></a>
         <a href="<?php echo $admin_link; ?>&tab=capabilities" class="nav-tab <?php if($active_tab == 'capabilities') echo 'nav-tab-active'; ?>"><?php echo __('Capabilities', 'woocommerce'); ?></a>
-        <a href="<?php echo $admin_link; ?>&tab=billing" class="nav-tab <?php if($active_tab == 'billing') echo 'nav-tab-active'; ?>"><?php echo __('Checkout Page', 'woocommerce').' - '.__('Billing', 'woocommerce'); ?></a>
-        <a href="<?php echo $admin_link; ?>&tab=shipping" class="nav-tab <?php if($active_tab == 'shipping') echo 'nav-tab-active'; ?>"><?php echo __('Checkout Page', 'woocommerce').' - '.__('Shipping', 'woocommerce'); ?></a>
+        <a href="<?php echo $admin_link; ?>&tab=billing" class="nav-tab <?php if($active_tab == 'billing') echo 'nav-tab-active'; ?>"><?php echo __('Checkout', 'woocommerce').' - '.__('Billing', 'woocommerce'); ?></a>
+        <a href="<?php echo $admin_link; ?>&tab=shipping" class="nav-tab <?php if($active_tab == 'shipping') echo 'nav-tab-active'; ?>"><?php echo __('Checkout', 'woocommerce').' - '.__('Shipping', 'woocommerce'); ?></a>
         <a href="<?php echo $admin_link; ?>&tab=importexport" class="nav-tab <?php if($active_tab == 'importexport') echo 'nav-tab-active'; ?>"><?php echo __('Import/export', 'woocommerce'); ?></a>
         <a href="<?php echo $admin_link; ?>&tab=devhelpers" class="nav-tab <?php if($active_tab == 'devhelpers') echo 'nav-tab-active'; ?>"><?php echo __('Developer', 'woocommerce'); ?></a>
     	</h2>
@@ -1214,6 +1214,16 @@ class WooTweak2 {
 				<input type="submit" name="show_current_levels" value="<?php echo __('Show current levels', 'woocommerce'); ?>" class="button"  />
 			</p>
 		</form>
+
+		<p>Enable/Disable comments for all products</p>
+    	<form method="post">
+			<p>
+				<input type="hidden" name="all_products_comments" value="all_products_comments" />
+				<?php wp_nonce_field( 'all_products_comments_nonce', 'all_products_comments_nonce' ); ?>
+				<input type="submit" name="enable_comments" value="<?php echo __('Enable comments', 'woocommerce'); ?>" class="button-primary"  />
+				<input type="submit" name="disable_comments" value="<?php echo __('Disable comments', 'woocommerce'); ?>" class="button"  />
+			</p>
+		</form>
     	<?php
     	
 
@@ -1248,13 +1258,45 @@ class WooTweak2 {
 
     function devhelpers_page_process()
     {
-    	if( empty( $_POST['add_levels_to_terms'] ) || 'add_levels' != $_POST['add_levels_to_terms'] )
-			return;
+  //   	if( empty( $_POST['add_levels_to_terms'] ) || 'add_levels' != $_POST['add_levels_to_terms'] )
+		// 	return;
 
-		if( ! wp_verify_nonce( $_POST['add_levels_to_terms_nonce'], 'add_levels_to_terms_nonce' ) )
-			return;
+		// if( ! wp_verify_nonce( $_POST['add_levels_to_terms_nonce'], 'add_levels_to_terms_nonce' ) )
+		// 	return;
 
-		self::add_levels_to_terms();
+		// self::add_levels_to_terms();
+
+		if( !empty( $_POST['add_levels_to_terms'] ) && 'add_levels' == $_POST['add_levels_to_terms'] && wp_verify_nonce( $_POST['add_levels_to_terms_nonce'], 'add_levels_to_terms_nonce' ) )
+		{
+			self::add_levels_to_terms();	
+		} 
+
+		if( !empty( $_POST['all_products_comments'] ) && !empty( $_POST['enable_comments'] ) && 'all_products_comments' == $_POST['all_products_comments'] && wp_verify_nonce( $_POST['all_products_comments_nonce'], 'all_products_comments_nonce' ) )
+		{
+			global $wpdb;
+			file_put_contents('lot.txt', 'in');
+			$wpdb->query(
+				"
+				UPDATE $wpdb->posts 
+				SET comment_status = 'open'
+				WHERE post_type = 'product' 
+				"
+			);
+		}
+
+		if( !empty( $_POST['all_products_comments'] ) && !empty( $_POST['disable_comments'] ) && 'all_products_comments' == $_POST['all_products_comments'] && wp_verify_nonce( $_POST['all_products_comments_nonce'], 'all_products_comments_nonce' ) )
+		{
+			global $wpdb;
+			file_put_contents('lot.txt', 'in');
+			$wpdb->query(
+				"
+				UPDATE $wpdb->posts 
+				SET comment_status = 'closed'
+				WHERE post_type = 'product' 
+				"
+			);
+		}
+
     }
 
     function add_levels_to_terms()

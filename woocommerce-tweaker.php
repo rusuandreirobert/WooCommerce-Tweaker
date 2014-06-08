@@ -5,7 +5,7 @@ Plugin URI: https://github.com/darkdelphin/WooCommerce-Tweaker
 Description: Plugin that provides some additional options and tweaks for WooCommerce.
 Author: Pavel Burov (Dark Delphin)
 Author URI: http://pavelburov.com
-Version: 1.1.9
+Version: 1.2.0
 */
 
 require_once( 'updater/github.php' );
@@ -125,6 +125,11 @@ class WooTweak2 {
 		add_action( 'admin_init', array($this, 'devhelpers_page_process') );
 
 		remove_action( 'admin_notices', 'woothemes_updater_notice' );
+
+		if($o['wt2_hide_other_shipping_methods'])
+		{
+			add_filter( 'woocommerce_package_rates', array($this, 'wt2_hide_shipping_when_free_is_available'), 10, 2 );
+		}
     }
 
     function wt2_init()
@@ -288,6 +293,9 @@ class WooTweak2 {
 		add_settings_field('wt2_disable_cart_functions', __('Disable cart funcionality to simulate catalog'), array($this,'wt2_disable_cart_functions_generate_field'), 'main_section', 'WooTweak2_main_section'); // id, title, cb func, page , section
 
 	    add_settings_field('wt2_enhance_product_category_widget', __('Enhance product category widget with accordion for subcategories'), array($this,'wt2_enhance_product_category_widget_generate_field'), 'main_section', 'WooTweak2_main_section'); // id, title, cb func, page , section
+	    
+	    add_settings_field('wt2_hide_other_shipping_methods', __('Hide other shipping methods when FREE SHIPPING is available'), array($this,'wt2_hide_other_shipping_methods_generate_field'), 'main_section', 'WooTweak2_main_section'); // id, title, cb func, page , section
+	    
 
 		add_settings_field('wt2_manage_pages', __('Edit pages', 'WooTweak2'), array($this,'wt2_manage_pages_generate_field'), 'capabilities_section', 'WooTweak2_capabilities_section'); // id, title, cb func, page , section
 		add_settings_field('wt2_manage_posts', __('Edit posts'), array($this,'wt2_manage_posts_generate_field'), 'capabilities_section', 'WooTweak2_capabilities_section'); // id, title, cb func, page , section
@@ -488,8 +496,30 @@ class WooTweak2 {
     	echo '<input name="WooTweak2_options[wt2_enhance_product_category_widget]" type="checkbox" value="1" '.$checked.'>';
     }
 
+    function wt2_hide_other_shipping_methods_generate_field()
+    {
+    	$checked = ( 1 == $this->options['wt2_hide_other_shipping_methods'] ) ? 'checked="checked"' : '' ;
+    	echo '<input name="WooTweak2_options[wt2_hide_other_shipping_methods]" type="checkbox" value="1" '.$checked.'>';
+    }
+
     // Disable (hide) tabs on product page *************************************************************************************************************************
     
+    function wt2_hide_shipping_when_free_is_available( $rates, $package ) 
+    {
+	 	// Only modify rates if free_shipping is present
+	  	if ( isset( $rates['free_shipping'] ) ) {
+	  	
+	  		// To unset a single rate/method, do the following. This example unsets flat_rate shipping
+	  		unset( $rates['flat_rate'] );
+	  		
+	  		// To unset all methods except for free_shipping, do the following
+	  		$free_shipping          = $rates['free_shipping'];
+	  		$rates                  = array();
+	  		$rates['free_shipping'] = $free_shipping;
+		}
+		
+		return $rates;
+	}
 
     // Remove related products on product page *************************************************************************************************************************
 

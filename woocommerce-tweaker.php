@@ -64,13 +64,13 @@ class WooTweak2 {
 
 		add_filter('woocommerce_product_tabs', array($this, 'wt2_variations_tab'));
 
-		if($o['wt2_disable_tabs_on_product_page'])
+		if(isset($o['wt2_disable_tabs_on_product_page']) && $o['wt2_disable_tabs_on_product_page'])
 		{
 			add_action('woocommerce_after_single_product_summary', array($this, 'wt2_disable_tabs_on_product_page'), 5);
 			// remove_action('woocommerce_after_single_product_summary', 'woocommerce_output_product_data_tabs', 10);		
 		}
 		
-		if($o['wt2_apply_price_filters'])
+		if(isset($o['wt2_apply_price_filters']) && $o['wt2_apply_price_filters'])
 		{
 			add_filter('woocommerce_variable_price_html', array($this, 'wt2_variable_default_price_html_filter'), 10 , 2);
 			add_filter('woocommerce_variable_sale_price_html', array($this, 'wt2_variable_default_sale_price_filter'), 10 , 2);
@@ -96,7 +96,7 @@ class WooTweak2 {
 
 		add_action('get_header',array($this, 'wt2_remove_woo_commerce_generator_tag'));
 
-		if($o['wt2_disable_cart_functions'])
+		if(isset($o['wt2_disable_cart_functions']) && $o['wt2_disable_cart_functions'])
 		{
 			add_action('init', array($this, 'wt2_disable_cart_functions_callback'));
 		}
@@ -126,7 +126,7 @@ class WooTweak2 {
 
 		remove_action( 'admin_notices', 'woothemes_updater_notice' );
 
-		if($o['wt2_hide_other_shipping_methods'])
+		if(isset($o['wt2_hide_other_shipping_methods']) && $o['wt2_hide_other_shipping_methods'])
 		{
 			add_filter( 'woocommerce_package_rates', array($this, 'wt2_hide_shipping_when_free_is_available'), 10, 2 );
 		}
@@ -283,12 +283,9 @@ class WooTweak2 {
 	    add_settings_field('wt2_variation_price_formating', __('Variation price format', 'WooTweak2'), array($this,'wt2_variation_price_formating_generate_field'), 'main_section', 'WooTweak2_main_section'); // id, title, cb func, page , section
 	    
 	    add_settings_field('wt2_use_wysiwyg_for_variation_description', __('Use WYSIWYG editor for variation description', 'WooTweak2'), array($this,'wt2_use_wysiwyg_for_variation_description_generate_field'), 'main_section', 'WooTweak2_main_section'); // id, title, cb func, page , section
-	    
-	    if(is_plugin_active('wp-pagenavi/wp-pagenavi.php'))
-	    {	    
+	    	    
 	    add_settings_field('wt2_use_wp_pagenavi', __('Use WP PageNavi plugin for pagination (if installed and active)', 'WooTweak2'), array($this,'wt2_use_wp_pagenavi_generate_field'), 'main_section', 'WooTweak2_main_section'); // id, title, cb func, page , section
-		}
-		
+
 		add_settings_field('wt2_enable_checkout_fields_customization', __('Enable checkout fields customization','WooTweak2'), array($this,'wt2_enable_checkout_fields_customization_generate_field'), 'main_section', 'WooTweak2_main_section'); // id, title, cb func, page , section
 
 		add_settings_field('wt2_remove_related_products_on_product_page', __('Remove related products on product page'), array($this,'wt2_remove_related_products_on_product_page_generate_field'), 'main_section', 'WooTweak2_main_section'); // id, title, cb func, page , section
@@ -407,9 +404,11 @@ class WooTweak2 {
 	
     function wt2_use_wp_pagenavi_generate_field()
 	{
-	    $checked = ( 1 == $this->options['wt2_use_wp_pagenavi'] ) ? 'checked="checked"' : '' ;
-	    echo '<input name="WooTweak2_options[wt2_use_wp_pagenavi]" type="checkbox" value="1" '.$checked.'>';
-	    
+	    if(is_plugin_active('wp-pagenavi/wp-pagenavi.php'))
+	    {
+	    	$checked = ( 1 == $this->options['wt2_use_wp_pagenavi'] ) ? 'checked="checked"' : '' ;
+	    	echo '<input name="WooTweak2_options[wt2_use_wp_pagenavi]" type="checkbox" value="1" '.$checked.'>';
+	    }
 	}
     
     function wt2_show_sort_before_products_generate_field()
@@ -527,7 +526,7 @@ class WooTweak2 {
     function wt2_remove_related_products_on_product_page()
     {
     	$o = get_option('WooTweak2_options');
-    	if($o['wt2_remove_related_products_on_product_page'])
+    	if(isset($o['wt2_remove_related_products_on_product_page']) && $o['wt2_remove_related_products_on_product_page'])
     	{
     		remove_action( 'woocommerce_after_single_product_summary', 'woocommerce_output_related_products', 20);
     	}
@@ -693,7 +692,7 @@ class WooTweak2 {
 		global $wp_roles;
 		
 		$o = get_option('WooTweak2_options');
-		if($o['wt2_manage_pages']) 
+		if(isset($o['wt2_manage_pages']) && $o['wt2_manage_pages']) 
 		{
 			$wp_roles->remove_cap('shop_manager', 'edit_pages');
 			$wp_roles->remove_cap('shop_manager', 'edit_published_pages');
@@ -716,7 +715,7 @@ class WooTweak2 {
 			$wp_roles->add_cap('shop_manager', 'delete_others_pages');	
 		}
 
-		if($o['wt2_manage_posts']) 
+		if(isset($o['wt2_manage_posts']) && $o['wt2_manage_posts']) 
 		{
 			$wp_roles->remove_cap('shop_manager', 'edit_posts');
 			$wp_roles->remove_cap('shop_manager', 'edit_others_posts');
@@ -748,7 +747,7 @@ class WooTweak2 {
 
 		}
 
-		if($o['wt2_manage_tools']) 
+		if(isset($o['wt2_manage_tools']) && $o['wt2_manage_tools']) 
 		{
 			$wp_roles->remove_cap('shop_manager', 'import');
 			$wp_roles->remove_cap('shop_manager', 'export');
@@ -759,7 +758,7 @@ class WooTweak2 {
 			$wp_roles->add_cap('shop_manager', 'export');	
 		}
 
-		if($o['wt2_manage_orders']) 
+		if(isset($o['wt2_manage_orders']) && $o['wt2_manage_orders']) 
 		{
 			$wp_roles->remove_cap('shop_manager', 'manage_woocommerce_orders');
 		}
@@ -768,7 +767,7 @@ class WooTweak2 {
 			$wp_roles->add_cap('shop_manager', 'manage_woocommerce_orders');	
 		}
 
-		if($o['wt2_manage_coupons']) 
+		if(isset($o['wt2_manage_coupons']) && $o['wt2_manage_coupons']) 
 		{
 			$wp_roles->remove_cap('shop_manager', 'manage_woocommerce_coupons');
 		}
@@ -777,7 +776,7 @@ class WooTweak2 {
 			$wp_roles->add_cap('shop_manager', 'manage_woocommerce_coupons');	
 		}
 
-		if($o['wt2_manage_reports']) 
+		if(isset($o['wt2_manage_reports']) && $o['wt2_manage_reports']) 
 		{
 			$wp_roles->remove_cap('shop_manager', 'view_woocommerce_reports');
 		}
@@ -796,7 +795,7 @@ class WooTweak2 {
    function wt2_use_wp_pagenavi_func()
     {
 		$o = get_option('WooTweak2_options');
-		if ($o['wt2_use_wp_pagenavi'])
+		if (isset($o['wt2_use_wp_pagenavi']) && $o['wt2_use_wp_pagenavi'])
 		{
 			remove_action('woocommerce_pagination', 'woocommerce_pagination', 10);
 			
@@ -814,7 +813,7 @@ class WooTweak2 {
     function wt2_show_sorting_feild_before_products()
     {
 		$o = get_option('WooTweak2_options');
-		if ($o['wt2_show_sort_before_products'])
+		if (isset($o['wt2_show_sort_before_products']) && $o['wt2_show_sort_before_products'])
 		{
 			remove_action( 'woocommerce_pagination', 'woocommerce_catalog_ordering', 20 );
 			add_action('woocommerce_before_shop_loop', 'woocommerce_catalog_ordering', 20);
@@ -826,7 +825,7 @@ class WooTweak2 {
     function wt2_custom_addtocart_button_text_func()
     {
 		$o = get_option('WooTweak2_options');
-		if ($o['wt2_custom_addtocart_button_text'])
+		if (isset($o['wt2_custom_addtocart_button_text']) && $o['wt2_custom_addtocart_button_text'])
 		{
 		    return $o['wt2_custom_addtocart_button_text'];
 		}
@@ -850,7 +849,7 @@ class WooTweak2 {
     function wt2_remove_admin_bar_links() 
     {
     	$o = get_option('WooTweak2_options');
-		if ($o['wt2_disable_dashbord_logo_menu'])
+		if (isset($o['wt2_disable_dashbord_logo_menu']) && $o['wt2_disable_dashbord_logo_menu'])
 		{
 			global $wp_admin_bar;
 			$wp_admin_bar->remove_menu('wp-logo');
@@ -1446,7 +1445,7 @@ function wt2_styles()
 	// wp_register_style('wootweak2', plugins_url('/css/woocommerce-tweaker.css', __FILE__), array('woocommerce-general') );
 	// wp_enqueue_style('wootweak2');
 
-	if($o['wt2_use_flexbox_layout'])
+	if(isset($o['wt2_use_flexbox_layout']) && $o['wt2_use_flexbox_layout'])
 	{
 		wp_register_style('wootweak2flex', plugins_url('/css/woocommerce-tweaker-flexbox.css', __FILE__), array('woocommerce-general') );
 		wp_enqueue_style('wootweak2flex');
